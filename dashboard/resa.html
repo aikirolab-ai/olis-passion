@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Réservations — Manager · Oli's Passion</title>
+  <link rel="stylesheet" href="../css/tokens.css">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/dashboard.css">
+  <style>
+    /* ── Resa page specifics ──────────────────────────────── */
+    .service-tabs {
+      display: flex;
+      gap: 0;
+      background: var(--surface-container-low);
+      border-radius: var(--radius-lg);
+      padding: 4px;
+      border: 1px solid var(--outline-variant);
+    }
+    .service-tab {
+      flex: 1;
+      padding: 10px var(--space-3);
+      font-size: 13px;
+      font-weight: 600;
+      text-align: center;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all var(--duration);
+      color: var(--on-surface-variant);
+      background: transparent;
+      border: none;
+    }
+    .service-tab.active {
+      background: var(--surface);
+      color: var(--on-surface);
+      box-shadow: 0 1px 4px rgba(27,48,34,0.08);
+    }
+
+    /* ── New reservation modal ────────────────────────────── */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(6,27,14,0.5);
+      z-index: 300;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-4);
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      background: var(--surface);
+      border-radius: var(--radius-xl);
+      padding: var(--space-6);
+      width: 100%;
+      max-width: 520px;
+      max-height: 90svh;
+      overflow-y: auto;
+    }
+    .modal__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-4);
+    }
+    .modal__title {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 600;
+    }
+    .modal__close {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1px solid var(--outline-variant);
+      background: transparent;
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-form { display: flex; flex-direction: column; gap: var(--space-3); }
+    .modal-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); }
+
+    /* ── Note tag ─────────────────────────────────────────── */
+    .note-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      background: #fff3cd;
+      color: #856404;
+      border-radius: var(--radius-full);
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    /* ── Action menu ──────────────────────────────────────── */
+    .table-actions {
+      display: flex;
+      gap: 4px;
+    }
+    .table-actions button {
+      width: 30px;
+      height: 30px;
+      border-radius: var(--radius);
+      border: 1px solid var(--outline-variant);
+      background: transparent;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all var(--duration);
+    }
+    .table-actions button:hover { background: var(--surface-container); }
+    .table-actions button.confirm { color: #2e7d32; border-color: #c8e6c9; }
+    .table-actions button.confirm:hover { background: #e8f5e9; }
+    .table-actions button.cancel  { color: #c62828; border-color: #ffcdd2; }
+    .table-actions button.cancel:hover  { background: #fce4ec; }
+  </style>
+</head>
+<body class="theme-copper">
+<div class="dash-layout">
+
+  <!-- ── Sidebar ──────────────────────────────────────────── -->
+  <aside class="dash-sidebar" id="sidebar" aria-label="Navigation manager">
+    <div class="dash-sidebar__header">
+      <div class="dash-sidebar__logo">Oli's Passion</div>
+      <div class="dash-sidebar__role">Espace Manager</div>
+    </div>
+    <nav class="dash-nav">
+      <a class="dash-nav__item" href="index.html"><span class="dash-nav__icon">🏠</span>Accueil</a>
+      <a class="dash-nav__item active" href="resa.html">
+        <span class="dash-nav__icon">📅</span>Réservations
+        <span class="dash-nav__badge">3</span>
+      </a>
+      <a class="dash-nav__item" href="plan.html"><span class="dash-nav__icon">🪑</span>Plan de salle</a>
+      <a class="dash-nav__item" href="parametres.html"><span class="dash-nav__icon">⚙️</span>Paramètres</a>
+      <div style="flex:1"></div>
+      <a class="dash-nav__item" href="../index.html"><span class="dash-nav__icon">↗</span>Voir le site</a>
+    </nav>
+    <div class="dash-sidebar__footer">
+      <div class="dash-sidebar__user">
+        <div class="dash-sidebar__avatar">AO</div>
+        <div class="dash-sidebar__user-info"><strong>Alistair Oli</strong><span>Chef propriétaire</span></div>
+        <button class="dash-sidebar__logout" aria-label="Déconnexion">⏻</button>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <div class="dash-main">
+    <header class="dash-topbar">
+      <div style="display:flex; align-items:center; gap:var(--space-2);">
+        <button class="dash-mobile-toggle" id="mobileToggle" aria-label="Menu">☰</button>
+        <div>
+          <div class="dash-topbar__title">Réservations</div>
+          <div class="dash-topbar__date" id="currentDate"></div>
+        </div>
+      </div>
+      <div class="dash-topbar__actions">
+        <button class="icon-btn has-notif" aria-label="Notifications">🔔</button>
+        <button class="btn btn-primary" id="openModal" style="padding:8px 16px; font-size:12px;">+ Nouvelle réservation</button>
+      </div>
+    </header>
+
+    <main class="dash-content">
+
+      <!-- ── Stats rapides ──────────────────────────────── -->
+      <div class="dash-section">
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-card__label">Total ce soir</div>
+            <div class="kpi-card__value">46</div>
+            <div class="kpi-card__sub">réservations <span class="kpi-card__trend up">↑ complet</span></div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-card__label">Déjeuner</div>
+            <div class="kpi-card__value">12</div>
+            <div class="kpi-card__sub">sur 24 places disponibles</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-card__label">Dîner</div>
+            <div class="kpi-card__value">34</div>
+            <div class="kpi-card__sub">sur 52 places <span class="kpi-card__trend up">65%</span></div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-card__label">En attente</div>
+            <div class="kpi-card__value" style="color:var(--secondary)">3</div>
+            <div class="kpi-card__sub">à confirmer <span class="kpi-card__trend neutral">→ action</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Filtres ──────────────────────────────────────── -->
+      <div class="dash-section">
+        <div class="action-row">
+          <div class="action-row__left">
+            <div class="service-tabs">
+              <button class="service-tab active" data-service="all">Tous</button>
+              <button class="service-tab" data-service="lunch">Déjeuner</button>
+              <button class="service-tab" data-service="dinner">Dîner</button>
+            </div>
+          </div>
+          <div class="action-row__left">
+            <div class="search-input">
+              <span>🔍</span>
+              <input type="search" placeholder="Nom, table, téléphone…" id="searchInput" aria-label="Rechercher">
+            </div>
+            <select style="padding:8px 12px; border:1px solid var(--outline-variant); border-radius:var(--radius-md); background:var(--surface); font-size:13px; color:var(--on-surface); outline:none;" aria-label="Filtrer par statut">
+              <option value="">Tous les statuts</option>
+              <option>Confirmé</option>
+              <option>En attente</option>
+              <option>Annulé</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="dash-table-wrap">
+          <table class="dash-table" id="resaTable" aria-label="Liste des réservations">
+            <thead>
+              <tr>
+                <th>Client</th>
+                <th>Heure</th>
+                <th>Couverts</th>
+                <th>Table</th>
+                <th>Service</th>
+                <th>Statut</th>
+                <th>Notes</th>
+                <th aria-label="Actions"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr data-service="dinner">
+                <td class="name-cell"><strong>Jean Dupont</strong><br><span>+262 6 92 12 34 56</span></td>
+                <td>19h00</td>
+                <td>4 pers.</td>
+                <td>Table 3</td>
+                <td><span class="chip">Dîner</span></td>
+                <td><span class="status-badge confirmed">Confirmé</span></td>
+                <td><span class="note-tag">📝 Fenêtre</span></td>
+                <td class="table-actions">
+                  <button title="Éditer">✏️</button>
+                  <button class="cancel" title="Annuler">✕</button>
+                </td>
+              </tr>
+              <tr data-service="dinner">
+                <td class="name-cell"><strong>Marie Lefebvre</strong><br><span>+262 6 92 98 76 54</span></td>
+                <td>19h30</td>
+                <td>2 pers.</td>
+                <td>Table 7</td>
+                <td><span class="chip">Dîner</span></td>
+                <td><span class="status-badge confirmed">Confirmé</span></td>
+                <td><span class="note-tag">💑 Anniversaire mariage</span></td>
+                <td class="table-actions">
+                  <button title="Éditer">✏️</button>
+                  <button class="cancel" title="Annuler">✕</button>
+                </td>
+              </tr>
+              <tr data-service="dinner">
+                <td class="name-cell"><strong>Pierre Martin</strong><br><span>+262 6 92 55 44 33</span></td>
+                <td>20h00</td>
+                <td>4 pers.</td>
+                <td>Table 5</td>
+                <td><span class="chip">Dîner</span></td>
+                <td><span class="status-badge pending">En attente</span></td>
+                <td><span class="note-tag">🥗 Végétarien x2</span></td>
+                <td class="table-actions">
+                  <button class="confirm" title="Confirmer">✓</button>
+                  <button title="Éditer">✏️</button>
+                  <button class="cancel" title="Annuler">✕</button>
+                </td>
+              </tr>
+              <tr data-service="dinner">
+                <td class="name-cell"><strong>Lucie Bernard</strong><br><span>+262 6 92 11 22 33</span></td>
+                <td>20h30</td>
+                <td>8 pers.</td>
+                <td>Salon privé</td>
+                <td><span class="chip">Dîner</span></td>
+                <td><span class="status-badge confirmed">Confirmé</span></td>
+                <td><span class="note-tag">⭐ Menu dégustation</span></td>
+                <td class="table-actions">
+                  <button title="Éditer">✏️</button>
+                  <button class="cancel" title="Annuler">✕</button>
+                </td>
+              </tr>
+              <tr data-service="dinner">
+                <td class="name-cell"><strong>Thomas Rivière</strong><br><span>+262 6 92 77 88 99</span></td>
+                <td>21h00</td>
+                <td>2 pers.</td>
+                <td>Table 10</td>
+                <td><span class="chip">Dîner</span></td>
+                <td><span class="status-badge pending">En attente</span></td>
+                <td><span class="note-tag">💍 Demande mariage</span></td>
+                <td class="table-actions">
+                  <button class="confirm" title="Confirmer">✓</button>
+                  <button title="Éditer">✏️</button>
+                  <button class="cancel" title="Annuler">✕</button>
+                </td>
+              </tr>
+              <tr data-service="lunch">
+                <td class="name-cell"><strong>Sophie Duroc</strong><br><span>+262 6 92 33 44 55</span></td>
+                <td>12h00</td>
+                <td>3 pers.</td>
+                <td>Table 2</td>
+                <td><span class="chip" style="background:color-mix(in srgb,var(--gold) 15%,transparent);color:var(--tertiary-container)">Déjeuner</span></td>
+                <td><span class="status-badge confirmed">Confirmé</span></td>
+                <td>—</td>
+                <td class="table-actions">
+                  <button title="Éditer">✏️</button>
+                  <button class="cancel" title="Annuler">✕</button>
+                </td>
+              </tr>
+              <tr data-service="dinner">
+                <td class="name-cell"><strong>Antoine Moreau</strong><br><span>+262 6 92 66 77 88</span></td>
+                <td>21h30</td>
+                <td>2 pers.</td>
+                <td>Table 1</td>
+                <td><span class="chip">Dîner</span></td>
+                <td><span class="status-badge pending">En attente</span></td>
+                <td>—</td>
+                <td class="table-actions">
+                  <button class="confirm" title="Confirmer">✓</button>
+                  <button title="Éditer">✏️</button>
+                  <button class="cancel" title="Annuler">✕</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ── Modal nouvelle réservation ─────────────────────────── -->
+<div class="modal-backdrop" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal">
+    <div class="modal__header">
+      <h2 class="modal__title" id="modalTitle">Nouvelle réservation</h2>
+      <button class="modal__close" id="closeModal" aria-label="Fermer">✕</button>
+    </div>
+    <form class="modal-form" novalidate>
+      <div class="modal-form-row">
+        <div class="field">
+          <label for="m-nom">Nom *</label>
+          <input type="text" id="m-nom" placeholder="Dupont" required>
+        </div>
+        <div class="field">
+          <label for="m-prenom">Prénom *</label>
+          <input type="text" id="m-prenom" placeholder="Jean" required>
+        </div>
+      </div>
+      <div class="modal-form-row">
+        <div class="field">
+          <label for="m-tel">Téléphone *</label>
+          <input type="tel" id="m-tel" placeholder="+262 6 92…" required>
+        </div>
+        <div class="field">
+          <label for="m-email">Email</label>
+          <input type="email" id="m-email" placeholder="jean@exemple.fr">
+        </div>
+      </div>
+      <div class="modal-form-row">
+        <div class="field">
+          <label for="m-date">Date *</label>
+          <input type="date" id="m-date" required>
+        </div>
+        <div class="field">
+          <label for="m-heure">Heure *</label>
+          <select id="m-heure" required>
+            <option value="">Choisir</option>
+            <option>12h00</option><option>12h30</option><option>13h00</option>
+            <option>19h00</option><option>19h30</option><option>20h00</option>
+            <option>20h30</option><option>21h00</option><option>21h30</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-form-row">
+        <div class="field">
+          <label for="m-couverts">Couverts *</label>
+          <select id="m-couverts" required>
+            <option>1</option><option>2</option><option>3</option><option>4</option>
+            <option>5</option><option>6</option><option>7</option><option>8+</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="m-table">Table</label>
+          <select id="m-table">
+            <option value="">Auto-assigner</option>
+            <option>Table 1 (2)</option><option>Table 2 (4)</option><option>Table 3 (4)</option>
+            <option>Table 4 (2)</option><option>Table 5 (6)</option><option>Table 6 (2)</option>
+            <option>Table 7 (4)</option><option>Table 8 (2)</option><option>Table 9 (4)</option>
+            <option>Table 10 (2)</option><option>Salon privé (8-12)</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label for="m-notes">Notes spéciales</label>
+        <textarea id="m-notes" rows="2" placeholder="Allergies, occasion, préférences…"></textarea>
+      </div>
+      <div style="display:flex; gap:var(--space-2); justify-content:flex-end; margin-top:var(--space-2);">
+        <button type="button" class="btn btn-outline" id="closeModal2">Annuler</button>
+        <button type="submit" class="btn btn-primary">Créer la réservation</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  document.getElementById('currentDate').textContent =
+    new Date().toLocaleDateString('fr-FR', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  document.getElementById('mobileToggle').addEventListener('click', () => {
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('open');
+  });
+  overlay.addEventListener('click', () => { sidebar.classList.remove('open'); overlay.classList.remove('open'); });
+
+  // Modal
+  const modal = document.getElementById('modal');
+  document.getElementById('openModal').addEventListener('click',  () => modal.classList.add('open'));
+  document.getElementById('closeModal').addEventListener('click', () => modal.classList.remove('open'));
+  document.getElementById('closeModal2').addEventListener('click',() => modal.classList.remove('open'));
+  modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('open'); });
+
+  // Service filter tabs
+  document.querySelectorAll('.service-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.service-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const svc = btn.dataset.service;
+      document.querySelectorAll('#resaTable tbody tr').forEach(tr => {
+        tr.style.display = (svc === 'all' || tr.dataset.service === svc) ? '' : 'none';
+      });
+    });
+  });
+
+  // Search
+  document.getElementById('searchInput').addEventListener('input', function() {
+    const q = this.value.toLowerCase();
+    document.querySelectorAll('#resaTable tbody tr').forEach(tr => {
+      tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+  });
+
+  // Confirm button
+  document.querySelectorAll('.confirm').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const row = this.closest('tr');
+      const badge = row.querySelector('.status-badge');
+      badge.className = 'status-badge confirmed';
+      badge.textContent = 'Confirmé';
+      this.remove();
+    });
+  });
+</script>
+</body>
+</html>

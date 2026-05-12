@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cocktails — Oli's Passion</title>
+  <meta name="description" content="La carte des cocktails d'Oli's Passion — créations signature inspirées des saveurs de La Réunion.">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* ── Cocktails page ─────────────────────────────────────── */
+    .cocktail-hero {
+      padding-top: 72px;
+      min-height: 60vh;
+      background: var(--primary);
+      display: flex;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .cocktail-hero::before {
+      content: '';
+      position: absolute;
+      top: -40%;
+      right: -15%;
+      width: 700px;
+      height: 700px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(150,72,45,0.2) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .cocktail-hero .container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-12);
+      align-items: center;
+      padding-block: var(--space-15);
+    }
+    .cocktail-hero__content .label-caps { color: var(--gold); margin-bottom: var(--space-2); }
+    .cocktail-hero__content .display { color: var(--on-primary); margin-bottom: var(--space-3); }
+    .cocktail-hero__content p {
+      color: var(--on-primary-container);
+      font-size: var(--text-body-lg);
+      line-height: 1.7;
+      max-width: 420px;
+    }
+    .cocktail-hero__image {
+      display: flex;
+      justify-content: center;
+    }
+    .cocktail-hero__image img {
+      width: 380px;
+      height: 520px;
+      object-fit: cover;
+      border-radius: var(--radius-xl);
+      box-shadow: 0 32px 80px rgba(0,0,0,0.3);
+    }
+
+    /* ── Filter bar ───────────────────────────────────────── */
+    .filter-bar {
+      position: sticky;
+      top: 72px;
+      z-index: 50;
+      background: rgba(253,249,244,0.96);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--outline-variant);
+      padding-block: var(--space-2);
+    }
+    .filter-bar .container { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+    .filter-btn {
+      padding: 8px 18px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--outline-variant);
+      background: transparent;
+      color: var(--on-surface-variant);
+      cursor: pointer;
+      transition: all var(--duration) var(--ease-out);
+    }
+    .filter-btn:hover { border-color: var(--secondary); color: var(--secondary); }
+    .filter-btn.active {
+      background: var(--secondary);
+      border-color: var(--secondary);
+      color: var(--on-secondary);
+    }
+
+    /* ── Cocktail grid ─────────────────────────────────────── */
+    .cocktails-section {
+      padding-block: var(--space-15);
+    }
+    .cocktails-section + .cocktails-section {
+      border-top: 1px solid var(--outline-variant);
+    }
+    .section-title-row {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      margin-bottom: var(--space-8);
+    }
+    .section-title-row .label-caps { margin-bottom: var(--space-1); }
+    .section-title-row .headline-md { margin-bottom: 0; }
+    .section-title-row .divider { margin-top: var(--space-2); margin-bottom: 0; }
+
+    .cocktail-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-4);
+    }
+    .cocktail-card {
+      background: var(--surface-container-low);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform var(--duration) var(--ease-out), box-shadow var(--duration) var(--ease-out);
+    }
+    .cocktail-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 60px rgba(27,48,34,0.12);
+    }
+    .cocktail-card__image {
+      height: 220px;
+      overflow: hidden;
+      background: var(--surface-container);
+      position: relative;
+    }
+    .cocktail-card__image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 600ms var(--ease-out);
+    }
+    .cocktail-card:hover .cocktail-card__image img { transform: scale(1.06); }
+    .cocktail-card__badge {
+      position: absolute;
+      top: var(--space-2);
+      right: var(--space-2);
+      background: rgba(27,48,34,0.85);
+      color: var(--gold-light);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+    }
+    .cocktail-card__body {
+      padding: var(--space-4);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .cocktail-card__name {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 600;
+      line-height: 1.3;
+      margin-bottom: 6px;
+    }
+    .cocktail-card__base {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--secondary);
+      margin-bottom: var(--space-2);
+    }
+    .cocktail-card__desc {
+      font-size: 14px;
+      color: var(--on-surface-variant);
+      line-height: 1.6;
+      flex: 1;
+      margin-bottom: var(--space-3);
+    }
+    .cocktail-card__footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .cocktail-card__price {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--primary-container);
+    }
+    .cocktail-card__abv {
+      font-size: 11px;
+      color: var(--on-surface-variant);
+      letter-spacing: 0.06em;
+    }
+
+    /* ── Featured cocktail (full-width) ──────────────────── */
+    .cocktail-featured {
+      background: var(--surface-container);
+      border-radius: var(--radius-xl);
+      padding: var(--space-8);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-8);
+      align-items: center;
+      margin-bottom: var(--space-8);
+    }
+    .cocktail-featured__label { color: var(--gold); margin-bottom: var(--space-2); }
+    .cocktail-featured__name {
+      font-family: var(--font-display);
+      font-size: 36px;
+      font-weight: 700;
+      line-height: 1.15;
+      margin-bottom: var(--space-2);
+    }
+    .cocktail-featured__base {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--secondary);
+      margin-bottom: var(--space-3);
+    }
+    .cocktail-featured__desc {
+      color: var(--on-surface-variant);
+      line-height: 1.8;
+      margin-bottom: var(--space-4);
+    }
+    .cocktail-featured__ingredients {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: var(--space-4);
+    }
+    .cocktail-featured__ingredients li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      color: var(--on-surface-variant);
+    }
+    .cocktail-featured__ingredients li::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--gold);
+      flex-shrink: 0;
+    }
+    .cocktail-featured__image {
+      display: flex;
+      justify-content: center;
+    }
+    .cocktail-featured__image img {
+      width: 100%;
+      max-width: 400px;
+      height: 480px;
+      object-fit: cover;
+      border-radius: var(--radius-lg);
+    }
+
+    /* ── Sans alcool strip ────────────────────────────────── */
+    .mocktails-strip {
+      padding-block: var(--space-15);
+      background: var(--primary-container);
+    }
+    .mocktails-strip .container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-8);
+      align-items: center;
+    }
+    .mocktails-strip__content .label-caps { color: var(--gold); margin-bottom: var(--space-2); }
+    .mocktails-strip__content .headline-md { color: var(--on-primary); margin-bottom: var(--space-3); }
+    .mocktails-strip__content p { color: var(--on-primary-container); line-height: 1.7; margin-bottom: var(--space-4); }
+    .mocktail-list { display: flex; flex-direction: column; gap: var(--space-3); }
+    .mocktail-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-block: var(--space-2);
+      border-bottom: 1px solid rgba(180,205,184,0.15);
+    }
+    .mocktail-item:last-child { border-bottom: none; }
+    .mocktail-item__name {
+      font-family: var(--font-display);
+      font-size: 18px;
+      color: var(--on-primary);
+    }
+    .mocktail-item__desc { font-size: 13px; color: var(--on-primary-container); }
+    .mocktail-item__price {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--gold-light);
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 1024px) {
+      .cocktail-hero .container { grid-template-columns: 1fr; }
+      .cocktail-hero__image { display: none; }
+      .cocktail-grid { grid-template-columns: 1fr 1fr; }
+      .cocktail-featured { grid-template-columns: 1fr; }
+      .mocktails-strip .container { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 768px) {
+      .cocktail-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Navigation ───────────────────────────────────────── -->
+  <nav class="site-nav" id="siteNav" aria-label="Navigation principale">
+    <a href="index.html" class="site-nav__logo">Oli's<span>'</span>Passion</a>
+    <ul class="site-nav__links" id="navLinks" role="list">
+      <li><a href="index.html">Accueil</a></li>
+      <li><a href="menu.html">Menu</a></li>
+      <li><a href="cocktails.html" class="active">Cocktails</a></li>
+      <li><a href="vin.html">Cave</a></li>
+    </ul>
+    <div class="site-nav__actions">
+      <div class="lang-toggle"><span>FR</span><span>|</span><span style="opacity:.45">EN</span></div>
+      <a href="index.html#reservation" class="btn btn-primary">Réserver</a>
+      <button class="nav-toggle" id="navToggle" aria-label="Menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ── Hero sombre ───────────────────────────────────────── -->
+  <header class="cocktail-hero" aria-labelledby="cocktail-page-title">
+    <div class="container">
+      <div class="cocktail-hero__content">
+        <p class="label-caps animate-fade-up">L'art des spiritueux créoles</p>
+        <h1 class="display animate-fade-up delay-1" id="cocktail-page-title">
+          Gilded<br><em style="font-style:italic; color:var(--secondary-container)">Minimal.</em>
+        </h1>
+        <p class="animate-fade-up delay-2">Des créations qui subliment le rhum agricole de Réunion, les fruits tropicaux et les épices de l'océan Indien dans un langage contemporain et minimal.</p>
+      </div>
+      <div class="cocktail-hero__image animate-fade-in delay-1" aria-hidden="true">
+        <img src="https://images.unsplash.com/photo-1551538827-9c037cb4f32a?w=600&q=80" alt="Cocktail signature Oli's Passion">
+      </div>
+    </div>
+  </header>
+
+  <!-- ── Filtre ─────────────────────────────────────────────── -->
+  <div class="filter-bar" role="navigation" aria-label="Filtrer par catégorie">
+    <div class="container">
+      <button class="filter-btn active" data-filter="all">Tous</button>
+      <button class="filter-btn" data-filter="signature">Signatures</button>
+      <button class="filter-btn" data-filter="rhum">À base de rhum</button>
+      <button class="filter-btn" data-filter="gin">Gin & botaniques</button>
+      <button class="filter-btn" data-filter="sans-alcool">Sans alcool</button>
+    </div>
+  </div>
+
+  <main>
+    <div class="container">
+
+      <!-- ── Cocktail signature featured ─────────────────── -->
+      <section class="cocktails-section" aria-labelledby="signature-title">
+        <div class="section-title-row">
+          <div>
+            <p class="label-caps reveal">Création du moment</p>
+            <h2 class="headline-md reveal reveal-delay-1" id="signature-title">Le Cocktail du Chef</h2>
+            <div class="divider reveal reveal-delay-1"></div>
+          </div>
+        </div>
+
+        <article class="cocktail-featured reveal">
+          <div>
+            <p class="label-caps cocktail-featured__label">★ Signature saison</p>
+            <h3 class="cocktail-featured__name">L'Âme de l'Île</h3>
+            <p class="cocktail-featured__base">Rhum Agricole Blanc · Fût de chêne</p>
+            <p class="cocktail-featured__desc">Une méditation liquide sur le terroir réunionnais. Le rhum vieux de la distillerie Savanna rencontre une infusion de vanille Bourbon, un sirop de combava et un ginger beer artisanal pour une complexité douce-amère inoubliable.</p>
+            <ul class="cocktail-featured__ingredients">
+              <li>Rhum Savanna HERR 5 ans (45ml)</li>
+              <li>Sirop de vanille Bourbon maison (15ml)</li>
+              <li>Jus de combava pressé (20ml)</li>
+              <li>Ginger beer artisanal (60ml)</li>
+              <li>Zeste de combava, cristaux de sel de l'île</li>
+            </ul>
+            <div style="display:flex; align-items:center; gap:var(--space-3);">
+              <span style="font-family:var(--font-display); font-size:28px; font-weight:700; color:var(--secondary);">22 €</span>
+              <span class="chip">Sans gluten</span>
+            </div>
+          </div>
+          <div class="cocktail-featured__image">
+            <img src="https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=600&q=80" alt="L'Âme de l'Île cocktail" loading="lazy">
+          </div>
+        </article>
+      </section>
+
+      <!-- ── Cocktails signature ──────────────────────────── -->
+      <section class="cocktails-section" aria-labelledby="rhum-title">
+        <div class="section-title-row">
+          <div>
+            <p class="label-caps reveal">Créations</p>
+            <h2 class="headline-md reveal reveal-delay-1" id="rhum-title">Cocktails Signatures</h2>
+            <div class="divider reveal reveal-delay-1"></div>
+          </div>
+        </div>
+
+        <div class="cocktail-grid">
+          <article class="cocktail-card reveal" data-category="rhum signature">
+            <div class="cocktail-card__image">
+              <img src="https://images.unsplash.com/photo-1551538827-9c037cb4f32a?w=400&q=80" alt="Flamme Douce" loading="lazy">
+              <span class="cocktail-card__badge">Signature</span>
+            </div>
+            <div class="cocktail-card__body">
+              <p class="cocktail-card__base">Rhum vieux · Hibiscus</p>
+              <h3 class="cocktail-card__name">Flamme Douce</h3>
+              <p class="cocktail-card__desc">Rhum vieux Isautier 8 ans, sirop d'hibiscus, citron vert, blanc d'œuf, bitter de lave.</p>
+              <div class="cocktail-card__footer">
+                <span class="cocktail-card__price">18 €</span>
+                <span class="cocktail-card__abv">ABV ~14%</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="cocktail-card reveal reveal-delay-1" data-category="rhum signature">
+            <div class="cocktail-card__image">
+              <img src="https://images.unsplash.com/photo-1546171753-97d7676e4602?w=400&q=80" alt="Brume Volcanique" loading="lazy">
+            </div>
+            <div class="cocktail-card__body">
+              <p class="cocktail-card__base">Rhum arrangé · Fruits de la passion</p>
+              <h3 class="cocktail-card__name">Brume Volcanique</h3>
+              <p class="cocktail-card__desc">Rhum arrangé vanille-gingembre maison, purée de fruits de la passion, eau pétillante, turmeric fumé.</p>
+              <div class="cocktail-card__footer">
+                <span class="cocktail-card__price">16 €</span>
+                <span class="cocktail-card__abv">ABV ~12%</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="cocktail-card reveal reveal-delay-2" data-category="gin signature">
+            <div class="cocktail-card__image">
+              <img src="https://images.unsplash.com/photo-1605989649903-a17a36c9e4af?w=400&q=80" alt="Forêt Tropicale" loading="lazy">
+            </div>
+            <div class="cocktail-card__body">
+              <p class="cocktail-card__base">Gin · Verveine · Coco</p>
+              <h3 class="cocktail-card__name">Forêt Tropicale</h3>
+              <p class="cocktail-card__desc">Gin London Dry, eau de coco fraîche, verveine du jardin, jus de citron vert, sel de mer.</p>
+              <div class="cocktail-card__footer">
+                <span class="cocktail-card__price">17 €</span>
+                <span class="cocktail-card__abv">ABV ~13%</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="cocktail-card reveal" data-category="rhum">
+            <div class="cocktail-card__image">
+              <img src="https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400&q=80" alt="Soleil de Bourbon" loading="lazy">
+            </div>
+            <div class="cocktail-card__body">
+              <p class="cocktail-card__base">Rhum blanc · Vanille · Letchi</p>
+              <h3 class="cocktail-card__name">Soleil de Bourbon</h3>
+              <p class="cocktail-card__desc">Rhum blanc agricole Rivière du Mât, sirop de letchi, infusion de vanille, eau tonique premium.</p>
+              <div class="cocktail-card__footer">
+                <span class="cocktail-card__price">15 €</span>
+                <span class="cocktail-card__abv">ABV ~11%</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="cocktail-card reveal reveal-delay-1" data-category="gin">
+            <div class="cocktail-card__image">
+              <img src="https://images.unsplash.com/photo-1563227812-0ea4c22e6cc8?w=400&q=80" alt="Jardin Sauvage" loading="lazy">
+            </div>
+            <div class="cocktail-card__body">
+              <p class="cocktail-card__base">Gin · Basilic · Mangue verte</p>
+              <h3 class="cocktail-card__name">Jardin Sauvage</h3>
+              <p class="cocktail-card__desc">Gin à la fleur de combava, sirop de mangue verte, basilic frais pilé, eau pétillante de montagne.</p>
+              <div class="cocktail-card__footer">
+                <span class="cocktail-card__price">16 €</span>
+                <span class="cocktail-card__abv">ABV ~12%</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="cocktail-card reveal reveal-delay-2" data-category="rhum">
+            <div class="cocktail-card__image">
+              <img src="https://images.unsplash.com/photo-1574952575520-e7d5c44f4c0e?w=400&q=80" alt="Nuit de Cyclone" loading="lazy">
+            </div>
+            <div class="cocktail-card__body">
+              <p class="cocktail-card__base">Dark rum · Épices · Cacao</p>
+              <h3 class="cocktail-card__name">Nuit de Cyclone</h3>
+              <p class="cocktail-card__desc">Rhum ambré vieux, infusion de cacao de Sao Tomé, sirop d'épices, angostura, orange amère.</p>
+              <div class="cocktail-card__footer">
+                <span class="cocktail-card__price">19 €</span>
+                <span class="cocktail-card__abv">ABV ~16%</span>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+    </div>
+
+    <!-- ── Sans alcool ────────────────────────────────────── -->
+    <section class="mocktails-strip" aria-labelledby="mocktail-title">
+      <div class="container">
+        <div class="mocktails-strip__content">
+          <p class="label-caps reveal">Pour tous</p>
+          <h2 class="headline-md reveal reveal-delay-1" id="mocktail-title">Sans alcool</h2>
+          <div class="divider reveal reveal-delay-1"></div>
+          <p class="reveal reveal-delay-2">Nos créations sans alcool portent la même ambition que nos cocktails — complexité, équilibre, émotion. Des boissons pour tous, sans concession.</p>
+        </div>
+        <ul class="mocktail-list">
+          <li class="mocktail-item reveal">
+            <div>
+              <div class="mocktail-item__name">Eau de Ciel</div>
+              <div class="mocktail-item__desc">Eau de coco, citron vert, sirop de rose, eau pétillante</div>
+            </div>
+            <div class="mocktail-item__price">11 €</div>
+          </li>
+          <li class="mocktail-item reveal reveal-delay-1">
+            <div>
+              <div class="mocktail-item__name">Forêt Noire</div>
+              <div class="mocktail-item__desc">Jus de tamarind, hibiscus, ginger beer maison, sel de mer</div>
+            </div>
+            <div class="mocktail-item__price">11 €</div>
+          </li>
+          <li class="mocktail-item reveal reveal-delay-2">
+            <div>
+              <div class="mocktail-item__name">Réveil Tropical</div>
+              <div class="mocktail-item__desc">Ananas rôti, citron vert, combava, eau tonique, verveine</div>
+            </div>
+            <div class="mocktail-item__price">12 €</div>
+          </li>
+          <li class="mocktail-item reveal reveal-delay-3">
+            <div>
+              <div class="mocktail-item__name">Velours Violet</div>
+              <div class="mocktail-item__desc">Butterfly pea flower, litchi, citron vert, eau pétillante</div>
+            </div>
+            <div class="mocktail-item__price">12 €</div>
+          </li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <!-- ── Footer ─────────────────────────────────────────────── -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="footer-brand__logo">Oli's Passion</div>
+          <p class="footer-brand__tagline">Gastronomie créole d'exception au cœur de La Réunion.</p>
+        </div>
+        <nav aria-label="Navigation">
+          <h4>Restaurant</h4>
+          <a href="index.html">Accueil</a>
+          <a href="menu.html">Menu</a>
+          <a href="vin.html">La Cave</a>
+          <a href="index.html#reservation">Réservations</a>
+        </nav>
+        <div class="footer-col">
+          <h4>Horaires</h4>
+          <p>Mar – Sam : 19h – 22h30</p>
+          <p>Déjeuner : Ven – Sam</p>
+        </div>
+        <div class="footer-col">
+          <h4>Contact</h4>
+          <p>12 Allée des Flamboyants<br>Saint-Denis, La Réunion</p>
+          <a href="tel:+262262000000">+262 262 XX XX XX</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 Oli's Passion.</span>
+        <span>Conçu par <a href="#" style="color:var(--gold-light)">Aikiro Lab</a></span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const nav = document.getElementById('siteNav');
+    window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 40), { passive: true });
+    document.getElementById('navToggle').addEventListener('click', function() {
+      const links = document.getElementById('navLinks');
+      this.setAttribute('aria-expanded', links.classList.toggle('open'));
+    });
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // Filter
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const filter = btn.dataset.filter;
+        document.querySelectorAll('.cocktail-card').forEach(card => {
+          const cats = card.dataset.category || '';
+          card.style.display = (filter === 'all' || cats.includes(filter)) ? '' : 'none';
+        });
+      });
+    });
+  </script>
+</body>
+</html>

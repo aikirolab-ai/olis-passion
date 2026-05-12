@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__stitch__get_screen",
+      "WebFetch(domain:contribution.usercontent.google.com)",
+      "Bash(brew list *)",
+      "Read(//usr/local/bin/**)",
+      "Bash(brew --version)",
+      "Bash(export PATH=\"/opt/homebrew/bin:$PATH\")",
+      "Bash(ffmpeg -i \"/Users/olivierjoseph/Desktop/PROJET AI/Projet_VS_CODE/Démo/kling_Animation FOOD_Oli's Passion.mp4\" -vf \"fps=24,scale=1280:-1\" -c:v libwebp -quality 82 \"/Users/olivierjoseph/Desktop/PROJET AI/Projet_VS_CODE/Démo/frames/frame_%04d.webp\" -y)",
+      "Bash(ffmpeg -i \"/Users/olivierjoseph/Desktop/PROJET AI/Projet_VS_CODE/Démo/kling_Animation FOOD_Oli's Passion.mp4\" -vf \"fps=24,scale=1280:-1\" -q:v 2 \"/Users/olivierjoseph/Desktop/PROJET AI/Projet_VS_CODE/Démo/frames/frame_%04d.jpg\" -y)",
+      "Bash(python3 -c \"from PIL import Image; print\\('Pillow OK'\\)\")",
+      "Bash(pip3 install *)",
+      "WebFetch(domain:images.unsplash.com)",
+      "WebSearch",
+      "WebFetch(domain:unsplash.com)",
+      "Bash(find /Users/olivierjoseph/Desktop /Users/olivierjoseph/Downloads -name \"Capture*2026-05-12*15.36*\" 2>/dev/null | head -5)",
+      "Read(//Users/olivierjoseph/Desktop/**)",
+      "Bash(cp \"/Users/olivierjoseph/Desktop/Capture d'écran 2026-05-12 à 15.36.30.png\" \"/tmp/capture_nav.png\")",
+      "Bash(python3 -c \"import shutil; shutil.copy\\('/Users/olivierjoseph/Desktop/Capture d’écran 2026-05-12 à 15.36.30.png', '/tmp/capture_nav.png'\\)\")"
+    ],
+    "additionalDirectories": [
+      "/Users/olivierjoseph/Desktop"
+    ]
+  }
+}

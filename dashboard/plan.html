@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plan de salle — Manager · Oli's Passion</title>
+  <link rel="stylesheet" href="../css/tokens.css">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/dashboard.css">
+  <style>
+    /* ── Plan de salle layout ─────────────────────────────── */
+    .plan-layout {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: var(--space-4);
+      align-items: start;
+    }
+
+    /* ── Legend ───────────────────────────────────────────── */
+    .plan-legend {
+      display: flex;
+      gap: var(--space-3);
+      flex-wrap: wrap;
+      margin-bottom: var(--space-3);
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--on-surface-variant);
+    }
+    .legend-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: var(--radius);
+    }
+    .legend-dot.libre     { background: #e8f5e9; border: 2px solid #2e7d32; }
+    .legend-dot.reservee  { background: #fff3e0; border: 2px solid #e65100; }
+    .legend-dot.occupee   { background: #e3f2fd; border: 2px solid #1565c0; }
+    .legend-dot.privee    { background: color-mix(in srgb,var(--gold) 20%,transparent); border: 2px solid var(--gold); }
+
+    /* ── Floor plan canvas area ───────────────────────────── */
+    .floor-plan {
+      background: var(--surface);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius-xl);
+      padding: var(--space-6);
+      position: relative;
+      min-height: 560px;
+    }
+    .floor-plan__room-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--on-surface-variant);
+      margin-bottom: var(--space-4);
+      padding-bottom: var(--space-2);
+      border-bottom: 1px dashed var(--outline-variant);
+    }
+
+    /* ── Table visual ─────────────────────────────────────── */
+    .tables-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-3);
+    }
+    .table-unit {
+      aspect-ratio: 1;
+      border-radius: var(--radius-lg);
+      border: 2px solid transparent;
+      padding: var(--space-2);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all var(--duration) var(--ease-out);
+      position: relative;
+      user-select: none;
+    }
+    .table-unit:hover { transform: scale(1.04); }
+    .table-unit:focus-visible { outline: 3px solid var(--secondary); outline-offset: 2px; }
+    .table-unit.libre {
+      background: #f1f8e9;
+      border-color: #81c784;
+    }
+    .table-unit.reservee {
+      background: #fff8e1;
+      border-color: #ffb74d;
+    }
+    .table-unit.occupee {
+      background: #e3f2fd;
+      border-color: #64b5f6;
+    }
+    .table-unit.selected {
+      box-shadow: 0 0 0 3px var(--secondary);
+    }
+    .table-unit__number {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .table-unit.libre    .table-unit__number { color: #2e7d32; }
+    .table-unit.reservee .table-unit__number { color: #e65100; }
+    .table-unit.occupee  .table-unit__number { color: #1565c0; }
+    .table-unit__covers {
+      font-size: 11px;
+      font-weight: 500;
+      opacity: 0.7;
+    }
+    .table-unit__name {
+      font-size: 11px;
+      font-weight: 600;
+      color: inherit;
+      text-align: center;
+      margin-top: 3px;
+      max-width: 90%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .table-unit__time {
+      font-size: 10px;
+      opacity: 0.65;
+      margin-top: 2px;
+    }
+
+    /* ── Salon privé ──────────────────────────────────────── */
+    .salon-prive {
+      grid-column: 1 / -1;
+      aspect-ratio: auto;
+      padding: var(--space-3) var(--space-4);
+      flex-direction: row;
+      justify-content: flex-start;
+      gap: var(--space-3);
+      background: color-mix(in srgb, var(--gold) 12%, white);
+      border-color: var(--gold);
+    }
+    .salon-prive .table-unit__number { font-size: 16px; }
+
+    /* ── Details panel ────────────────────────────────────── */
+    .detail-panel {
+      background: var(--surface);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius-xl);
+      padding: var(--space-4);
+      position: sticky;
+      top: 80px;
+    }
+    .detail-panel__title {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--on-surface-variant);
+      margin-bottom: var(--space-3);
+    }
+    .detail-empty {
+      text-align: center;
+      padding: var(--space-8) 0;
+      color: var(--on-surface-variant);
+    }
+    .detail-empty__icon { font-size: 32px; margin-bottom: var(--space-2); }
+
+    .detail-table {
+      display: none;
+    }
+    .detail-table.visible { display: block; }
+    .detail-table__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-3);
+    }
+    .detail-table__number {
+      font-family: var(--font-display);
+      font-size: 28px;
+      font-weight: 700;
+    }
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-block: 8px;
+      border-bottom: 1px solid var(--surface-container-high);
+      font-size: 14px;
+    }
+    .detail-row:last-of-type { border-bottom: none; }
+    .detail-row__label { color: var(--on-surface-variant); font-weight: 500; }
+    .detail-row__value { font-weight: 600; }
+    .detail-actions {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      margin-top: var(--space-3);
+    }
+    .detail-actions .btn { width: 100%; justify-content: center; }
+
+    /* ── Stats bar ─────────────────────────────────────────── */
+    .stats-bar {
+      display: flex;
+      gap: var(--space-4);
+      background: var(--surface);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius-lg);
+      padding: var(--space-3) var(--space-4);
+      margin-bottom: var(--space-4);
+      flex-wrap: wrap;
+    }
+    .stats-bar__item { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+    .stats-bar__item strong { font-weight: 700; }
+    .stats-bar__sep { color: var(--outline-variant); }
+
+    @media (max-width: 1024px) {
+      .plan-layout { grid-template-columns: 1fr; }
+      .tables-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 768px) {
+      .tables-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body class="theme-copper">
+<div class="dash-layout">
+
+  <!-- ── Sidebar ──────────────────────────────────────────── -->
+  <aside class="dash-sidebar" id="sidebar" aria-label="Navigation manager">
+    <div class="dash-sidebar__header">
+      <div class="dash-sidebar__logo">Oli's Passion</div>
+      <div class="dash-sidebar__role">Espace Manager</div>
+    </div>
+    <nav class="dash-nav">
+      <a class="dash-nav__item" href="index.html"><span class="dash-nav__icon">🏠</span>Accueil</a>
+      <a class="dash-nav__item" href="resa.html"><span class="dash-nav__icon">📅</span>Réservations<span class="dash-nav__badge">3</span></a>
+      <a class="dash-nav__item active" href="plan.html"><span class="dash-nav__icon">🪑</span>Plan de salle</a>
+      <a class="dash-nav__item" href="parametres.html"><span class="dash-nav__icon">⚙️</span>Paramètres</a>
+      <div style="flex:1"></div>
+      <a class="dash-nav__item" href="../index.html"><span class="dash-nav__icon">↗</span>Voir le site</a>
+    </nav>
+    <div class="dash-sidebar__footer">
+      <div class="dash-sidebar__user">
+        <div class="dash-sidebar__avatar">AO</div>
+        <div class="dash-sidebar__user-info"><strong>Alistair Oli</strong><span>Chef propriétaire</span></div>
+        <button class="dash-sidebar__logout" aria-label="Déconnexion">⏻</button>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <div class="dash-main">
+    <header class="dash-topbar">
+      <div style="display:flex; align-items:center; gap:var(--space-2);">
+        <button class="dash-mobile-toggle" id="mobileToggle" aria-label="Menu">☰</button>
+        <div>
+          <div class="dash-topbar__title">Plan de salle</div>
+          <div class="dash-topbar__date" id="currentDate"></div>
+        </div>
+      </div>
+      <div class="dash-topbar__actions">
+        <button class="icon-btn" title="Imprimer" aria-label="Imprimer">🖨️</button>
+        <button class="icon-btn has-notif" aria-label="Notifications">🔔</button>
+      </div>
+    </header>
+
+    <main class="dash-content">
+
+      <!-- ── Stats rapides ──────────────────────────────── -->
+      <div class="stats-bar">
+        <div class="stats-bar__item"><span class="legend-dot libre"></span><strong>6</strong> tables libres</div>
+        <span class="stats-bar__sep">·</span>
+        <div class="stats-bar__item"><span class="legend-dot reservee"></span><strong>3</strong> réservées</div>
+        <span class="stats-bar__sep">·</span>
+        <div class="stats-bar__item"><span class="legend-dot occupee"></span><strong>2</strong> occupées</div>
+        <span class="stats-bar__sep">·</span>
+        <div class="stats-bar__item"><strong>34 / 52</strong> couverts ce soir</div>
+        <span class="stats-bar__sep">·</span>
+        <div class="stats-bar__item">Salon privé : <strong class="status-badge confirmed" style="padding:2px 8px;">Réservé — Lucie B. (8)</strong></div>
+      </div>
+
+      <!-- ── Legend ──────────────────────────────────────── -->
+      <div class="plan-legend">
+        <div class="legend-item"><div class="legend-dot libre"></div>Libre</div>
+        <div class="legend-item"><div class="legend-dot reservee"></div>Réservée</div>
+        <div class="legend-item"><div class="legend-dot occupee"></div>Occupée</div>
+        <div class="legend-item"><div class="legend-dot privee"></div>Salon privé</div>
+      </div>
+
+      <div class="plan-layout">
+        <!-- ── Floor plan ──────────────────────────────── -->
+        <div>
+          <div class="floor-plan" role="region" aria-label="Plan interactif des tables">
+            <div class="floor-plan__room-label">Salle principale — 10 tables</div>
+            <div class="tables-grid" id="tablesGrid">
+              <!-- Tables générées par JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Detail panel ──────────────────────────── -->
+        <aside class="detail-panel" aria-label="Détails de la table sélectionnée">
+          <div class="detail-panel__title">Détails de la table</div>
+          <div class="detail-empty" id="detailEmpty">
+            <div class="detail-empty__icon">🪑</div>
+            <p>Sélectionnez une table pour voir ses détails</p>
+          </div>
+          <div class="detail-table" id="detailContent">
+            <div class="detail-table__header">
+              <div class="detail-table__number" id="detailNumber">Table 1</div>
+              <span class="status-badge" id="detailStatus">Libre</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-row__label">Capacité</span>
+              <span class="detail-row__value" id="detailCap">2 pers.</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-row__label">Client</span>
+              <span class="detail-row__value" id="detailClient">—</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-row__label">Couverts</span>
+              <span class="detail-row__value" id="detailCouverts">—</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-row__label">Heure</span>
+              <span class="detail-row__value" id="detailTime">—</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-row__label">Notes</span>
+              <span class="detail-row__value" id="detailNotes">—</span>
+            </div>
+            <div class="detail-actions">
+              <button class="btn btn-primary" id="detailActionBtn" style="font-size:12px; padding:10px;">Marquer comme occupée</button>
+              <button class="btn btn-outline" style="font-size:12px; padding:10px;">Assigner une réservation</button>
+            </div>
+          </div>
+        </aside>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+  document.getElementById('currentDate').textContent =
+    new Date().toLocaleDateString('fr-FR', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  document.getElementById('mobileToggle').addEventListener('click', () => {
+    sidebar.classList.toggle('open'); overlay.classList.toggle('open');
+  });
+  overlay.addEventListener('click', () => { sidebar.classList.remove('open'); overlay.classList.remove('open'); });
+
+  // Table data
+  const tables = [
+    { id: 1,  capacity: 2,  status: 'libre',    client: null,              covers: null, time: null,    notes: null },
+    { id: 2,  capacity: 4,  status: 'reservee', client: 'Sophie Duroc',    covers: 3,    time: '12h00', notes: null },
+    { id: 3,  capacity: 4,  status: 'reservee', client: 'Jean Dupont',     covers: 4,    time: '19h00', notes: 'Fenêtre demandée' },
+    { id: 4,  capacity: 2,  status: 'libre',    client: null,              covers: null, time: null,    notes: null },
+    { id: 5,  capacity: 6,  status: 'occupee',  client: 'Réservation 5',   covers: 5,    time: '19h00', notes: null },
+    { id: 6,  capacity: 2,  status: 'libre',    client: null,              covers: null, time: null,    notes: null },
+    { id: 7,  capacity: 4,  status: 'reservee', client: 'Marie Lefebvre',  covers: 2,    time: '19h30', notes: 'Anniversaire mariage' },
+    { id: 8,  capacity: 2,  status: 'libre',    client: null,              covers: null, time: null,    notes: null },
+    { id: 9,  capacity: 4,  status: 'occupee',  client: 'Réservation 9',   covers: 4,    time: '20h00', notes: null },
+    { id: 10, capacity: 2,  status: 'libre',    client: null,              covers: null, time: null,    notes: null },
+  ];
+
+  const grid = document.getElementById('tablesGrid');
+  const statusLabels = { libre: 'LIBRE', reservee: 'RÉSERVÉE', occupee: 'OCCUPÉE' };
+
+  tables.forEach(t => {
+    const el = document.createElement('button');
+    el.className = `table-unit ${t.status}`;
+    el.setAttribute('aria-label', `Table ${t.id} — ${statusLabels[t.status]}`);
+    el.innerHTML = `
+      <div class="table-unit__number">${t.id}</div>
+      <div class="table-unit__covers">${t.capacity} pers.</div>
+      ${t.client ? `<div class="table-unit__name">${t.client.split(' ')[0]}</div>` : ''}
+      ${t.time ? `<div class="table-unit__time">${t.time}</div>` : ''}
+    `;
+    el.addEventListener('click', () => selectTable(t, el));
+    grid.appendChild(el);
+  });
+
+  // Salon privé
+  const salon = document.createElement('div');
+  salon.className = 'table-unit salon-prive';
+  salon.setAttribute('role', 'button');
+  salon.setAttribute('tabindex', '0');
+  salon.innerHTML = `
+    <div style="font-size:20px">🏛️</div>
+    <div style="margin-left:12px;">
+      <div style="font-family:var(--font-display);font-size:16px;font-weight:700;color:#8a6000;">Salon Privé</div>
+      <div style="font-size:12px;color:#8a6000;">8–12 pers. · Lucie Bernard · 20h30</div>
+    </div>
+    <div style="margin-left:auto;"><span class="status-badge confirmed" style="padding:3px 10px;">Réservé</span></div>
+  `;
+  grid.appendChild(salon);
+
+  function selectTable(t, el) {
+    document.querySelectorAll('.table-unit').forEach(u => u.classList.remove('selected'));
+    el.classList.add('selected');
+    document.getElementById('detailEmpty').style.display = 'none';
+    const content = document.getElementById('detailContent');
+    content.classList.add('visible');
+    document.getElementById('detailNumber').textContent = `Table ${t.id}`;
+    const badge = document.getElementById('detailStatus');
+    badge.className = `status-badge ${t.status === 'libre' ? 'confirmed' : t.status === 'reservee' ? 'pending' : 'seated'}`;
+    badge.textContent = statusLabels[t.status];
+    document.getElementById('detailCap').textContent = `${t.capacity} personnes`;
+    document.getElementById('detailClient').textContent = t.client || '—';
+    document.getElementById('detailCouverts').textContent = t.covers ? `${t.covers} pers.` : '—';
+    document.getElementById('detailTime').textContent = t.time || '—';
+    document.getElementById('detailNotes').textContent = t.notes || '—';
+    const btn = document.getElementById('detailActionBtn');
+    if (t.status === 'libre')    { btn.textContent = 'Assigner une réservation'; btn.className = 'btn btn-primary'; }
+    if (t.status === 'reservee') { btn.textContent = 'Marquer comme occupée';    btn.className = 'btn btn-primary'; }
+    if (t.status === 'occupee')  { btn.textContent = 'Libérer la table';         btn.className = 'btn btn-outline'; }
+  }
+</script>
+</body>
+</html>

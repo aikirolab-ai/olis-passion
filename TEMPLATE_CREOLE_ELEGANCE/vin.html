@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>La Cave — Oli's Passion</title>
+  <meta name="description" content="La cave des grands crus d'Oli's Passion — Grands crus de France, Trésors de l'Océan Indien, Sélection du sommelier.">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* ── Cave page ──────────────────────────────────────────── */
+    .cave-hero {
+      padding-top: 72px;
+      background: var(--surface-container-low);
+      padding-bottom: 0;
+      overflow: hidden;
+    }
+    .cave-hero .container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-8);
+      align-items: end;
+      padding-top: var(--space-15);
+    }
+    .cave-hero__content .label-caps { margin-bottom: var(--space-2); }
+    .cave-hero__content .display {
+      margin-bottom: var(--space-3);
+      font-style: italic;
+    }
+    .cave-hero__content .philosophy {
+      font-size: var(--text-body-lg);
+      color: var(--on-surface-variant);
+      font-style: italic;
+      line-height: 1.7;
+      border-left: 3px solid var(--gold);
+      padding-left: var(--space-3);
+      margin-bottom: var(--space-6);
+    }
+    .cave-hero__image {
+      align-self: end;
+    }
+    .cave-hero__image img {
+      width: 100%;
+      height: 480px;
+      object-fit: cover;
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    }
+
+    /* ── Category tabs ────────────────────────────────────── */
+    .category-tabs {
+      position: sticky;
+      top: 72px;
+      z-index: 50;
+      background: rgba(253,249,244,0.96);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--outline-variant);
+    }
+    .category-tabs .container {
+      display: flex;
+      gap: 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .category-tabs .container::-webkit-scrollbar { display: none; }
+    .cat-tab {
+      flex-shrink: 0;
+      padding: 16px var(--space-4);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--on-surface-variant);
+      border-bottom: 2px solid transparent;
+      transition: all var(--duration);
+      cursor: pointer;
+      background: none;
+      border-top: none;
+      border-left: none;
+      border-right: none;
+    }
+    .cat-tab:hover { color: var(--on-surface); }
+    .cat-tab.active { color: var(--secondary); border-bottom-color: var(--secondary); }
+
+    /* ── Wine section ─────────────────────────────────────── */
+    .wine-section {
+      padding-block: var(--space-15);
+      border-bottom: 1px solid var(--outline-variant);
+    }
+    .wine-section:last-of-type { border-bottom: none; }
+    .wine-section__header {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-8);
+      align-items: end;
+      margin-bottom: var(--space-12);
+    }
+    .wine-section__header p {
+      color: var(--on-surface-variant);
+      line-height: 1.8;
+    }
+
+    /* ── Wine entries ─────────────────────────────────────── */
+    .wine-list { display: flex; flex-direction: column; }
+    .wine-entry {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: var(--space-6);
+      align-items: start;
+      padding-block: var(--space-4);
+      border-bottom: 1px solid var(--surface-container-high);
+    }
+    .wine-entry:last-child { border-bottom: none; }
+    .wine-entry__region {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--secondary);
+      margin-bottom: 4px;
+    }
+    .wine-entry__name {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 500;
+      line-height: 1.3;
+      margin-bottom: 4px;
+    }
+    .wine-entry__producer {
+      font-size: 13px;
+      font-style: italic;
+      color: var(--on-surface-variant);
+      margin-bottom: var(--space-1);
+    }
+    .wine-entry__notes {
+      font-size: 14px;
+      color: var(--on-surface-variant);
+      line-height: 1.6;
+      max-width: 600px;
+    }
+    .wine-entry__meta {
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .wine-entry__year {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--on-surface-variant);
+      letter-spacing: 0.06em;
+      margin-bottom: 4px;
+    }
+    .wine-entry__price {
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--secondary);
+      white-space: nowrap;
+    }
+    .wine-entry__per { font-size: 11px; color: var(--outline); }
+    .wine-entry--prestige {
+      background: var(--surface-container-low);
+      border-radius: var(--radius-md);
+      padding: var(--space-4) var(--space-4);
+      border: none;
+      margin-bottom: var(--space-2);
+    }
+    .wine-entry--prestige .wine-entry__name { font-size: 24px; font-weight: 600; }
+
+    /* ── Score bubbles ────────────────────────────────────── */
+    .score-row { display: flex; gap: 6px; margin-top: var(--space-1); }
+    .score-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: var(--radius-full);
+      font-size: 11px;
+      font-weight: 700;
+      background: var(--surface-container);
+      color: var(--on-surface);
+    }
+    .score-badge.gold { background: var(--tertiary-container); color: var(--gold-light); }
+
+    /* ── Sommelier section ────────────────────────────────── */
+    .sommelier-section {
+      padding-block: var(--space-15);
+      background: var(--surface-container);
+    }
+    .sommelier-section .container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-12);
+      align-items: center;
+    }
+    .sommelier-section img {
+      width: 100%;
+      height: 480px;
+      object-fit: cover;
+      border-radius: var(--radius-lg);
+    }
+    .sommelier-content .label-caps { margin-bottom: var(--space-2); }
+    .sommelier-content .headline-md { margin-bottom: var(--space-3); }
+    .sommelier-content blockquote {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-style: italic;
+      color: var(--secondary);
+      border-left: 3px solid var(--gold);
+      padding-left: var(--space-3);
+      margin-block: var(--space-4);
+      line-height: 1.5;
+    }
+    .sommelier-content p { color: var(--on-surface-variant); line-height: 1.8; margin-bottom: var(--space-3); }
+
+    @media (max-width: 1024px) {
+      .cave-hero .container { grid-template-columns: 1fr; }
+      .cave-hero__image { display: none; }
+      .wine-section__header { grid-template-columns: 1fr; }
+      .sommelier-section .container { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 768px) {
+      .wine-entry { grid-template-columns: 1fr; gap: var(--space-2); }
+      .wine-entry__meta { text-align: left; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Navigation ───────────────────────────────────────── -->
+  <nav class="site-nav" id="siteNav" aria-label="Navigation principale">
+    <a href="index.html" class="site-nav__logo">Oli's<span>'</span>Passion</a>
+    <ul class="site-nav__links" id="navLinks" role="list">
+      <li><a href="index.html">Accueil</a></li>
+      <li><a href="menu.html">Menu</a></li>
+      <li><a href="cocktails.html">Cocktails</a></li>
+      <li><a href="vin.html" class="active">Cave</a></li>
+    </ul>
+    <div class="site-nav__actions">
+      <div class="lang-toggle"><span>FR</span><span>|</span><span style="opacity:.45">EN</span></div>
+      <a href="index.html#reservation" class="btn btn-primary">Réserver</a>
+      <button class="nav-toggle" id="navToggle" aria-label="Menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ── Hero ─────────────────────────────────────────────── -->
+  <header class="cave-hero" aria-labelledby="cave-title">
+    <div class="container">
+      <div class="cave-hero__content">
+        <p class="label-caps animate-fade-up">La Cave des Grands Crus</p>
+        <h1 class="display animate-fade-up delay-1" id="cave-title">Le vin est<br>un récit.</h1>
+        <p class="philosophy animate-fade-up delay-2">"Le vin est plus qu'une boisson ; c'est un récit de sol, de soleil et d'esprit."<br>— Notre sommelier</p>
+        <a href="#grands-crus" class="btn btn-primary animate-fade-up delay-3">Découvrir la sélection</a>
+      </div>
+      <div class="cave-hero__image animate-fade-in delay-1" aria-hidden="true">
+        <img src="https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=800&q=80" alt="Cave à vins Oli's Passion">
+      </div>
+    </div>
+  </header>
+
+  <!-- ── Category tabs ─────────────────────────────────────── -->
+  <nav class="category-tabs" aria-label="Catégories de vins">
+    <div class="container">
+      <button class="cat-tab active" data-section="grands-crus">Grands Crus de France</button>
+      <button class="cat-tab" data-section="ocean-indien">Trésors de l'Océan Indien</button>
+      <button class="cat-tab" data-section="sommelier">Sélection du Sommelier</button>
+    </div>
+  </nav>
+
+  <main>
+    <div class="container">
+
+      <!-- ══ Grands Crus de France ═════════════════════════ -->
+      <section class="wine-section" id="grands-crus" aria-labelledby="gc-title">
+        <div class="wine-section__header">
+          <div>
+            <p class="label-caps reveal">Bordeaux · Bourgogne · Rhône</p>
+            <h2 class="headline-lg reveal reveal-delay-1" id="gc-title">Grands Crus de France</h2>
+            <div class="divider reveal reveal-delay-1"></div>
+          </div>
+          <p class="reveal reveal-delay-2">Les grandes propriétés françaises, sélectionnées en primeur par notre sommelier lors de visites annuelles dans les appellations de référence.</p>
+        </div>
+
+        <div class="wine-list">
+          <article class="wine-entry wine-entry--prestige reveal">
+            <div>
+              <p class="wine-entry__region">Pauillac · Bordeaux</p>
+              <h3 class="wine-entry__name">Château Pichon Baron</h3>
+              <p class="wine-entry__producer">Château Pichon Baron, 2e Grand Cru Classé</p>
+              <p class="wine-entry__notes">Puissant et élégant, ce Pauillac déploie des tanins soyeux autour d'un cœur de cassis noir et de cèdre fumé. Accord parfait avec notre canard fumé au cuivre.</p>
+              <div class="score-row">
+                <span class="score-badge gold">Parker 96</span>
+                <span class="score-badge">RVF ★★★★★</span>
+              </div>
+            </div>
+            <div class="wine-entry__meta">
+              <div class="wine-entry__year">2019</div>
+              <div class="wine-entry__price">185 €</div>
+              <div class="wine-entry__per">la bouteille</div>
+            </div>
+          </article>
+
+          <article class="wine-entry reveal">
+            <div>
+              <p class="wine-entry__region">Gevrey-Chambertin · Bourgogne</p>
+              <h3 class="wine-entry__name">Mazis-Chambertin Grand Cru</h3>
+              <p class="wine-entry__producer">Domaine Rossignol-Trapet</p>
+              <p class="wine-entry__notes">Pinot noir d'exception, notes de cerise noire et de sous-bois, tannins veloutés. Notre préférence pour accompagner le filet de bœuf charolais.</p>
+              <div class="score-row"><span class="score-badge gold">Burghound 94</span></div>
+            </div>
+            <div class="wine-entry__meta">
+              <div class="wine-entry__year">2020</div>
+              <div class="wine-entry__price">220 €</div>
+              <div class="wine-entry__per">la bouteille</div>
+            </div>
+          </article>
+
+          <article class="wine-entry reveal">
+            <div>
+              <p class="wine-entry__region">Hermitage · Vallée du Rhône</p>
+              <h3 class="wine-entry__name">Hermitage Blanc "Chante-Alouette"</h3>
+              <p class="wine-entry__producer">M. Chapoutier</p>
+              <p class="wine-entry__notes">Marsanne à maturité, notes de cire d'abeille, acacia, pêche blanche. Complexité et minéralité pour sublimer notre langouste à la vanille.</p>
+            </div>
+            <div class="wine-entry__meta">
+              <div class="wine-entry__year">2021</div>
+              <div class="wine-entry__price">145 €</div>
+              <div class="wine-entry__per">la bouteille</div>
+            </div>
+          </article>
+
+          <article class="wine-entry reveal">
+            <div>
+              <p class="wine-entry__region">Sauternes · Bordeaux</p>
+              <h3 class="wine-entry__name">Château d'Yquem</h3>
+              <p class="wine-entry__producer">1er Grand Cru Classé Supérieur</p>
+              <p class="wine-entry__notes">Le plus grand vin liquoreux du monde. Abricot confit, miel de fleurs, safran, botrytis noble. Exclusive au verre, quantités limitées.</p>
+              <div class="score-row"><span class="score-badge gold">Parker 100</span></div>
+            </div>
+            <div class="wine-entry__meta">
+              <div class="wine-entry__year">2015</div>
+              <div class="wine-entry__price">95 €</div>
+              <div class="wine-entry__per">au verre (6cl)</div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- ══ Trésors de l'Océan Indien ══════════════════════ -->
+      <section class="wine-section" id="ocean-indien" aria-labelledby="oi-title">
+        <div class="wine-section__header">
+          <div>
+            <p class="label-caps reveal">Réunion · Afrique du Sud · Maurice</p>
+            <h2 class="headline-lg reveal reveal-delay-1" id="oi-title">Trésors de l'Océan Indien</h2>
+            <div class="divider reveal reveal-delay-1"></div>
+          </div>
+          <p class="reveal reveal-delay-2">Une collection unique de vins produits dans l'hémisphère sud tropical — un hommage à notre terroir insulaire et à ses voisins de l'océan.</p>
+        </div>
+
+        <div class="wine-list">
+          <article class="wine-entry wine-entry--prestige reveal">
+            <div>
+              <p class="wine-entry__region">Stellenbosch · Afrique du Sud</p>
+              <h3 class="wine-entry__name">Kanonkop Paul Sauer</h3>
+              <p class="wine-entry__producer">Kanonkop Estate</p>
+              <p class="wine-entry__notes">L'assemblage emblématique du Cap : Cabernet Sauvignon, Cab Franc, Merlot. Robuste et complexe, avec une belle fraîcheur africaine. Le "Pétrus" du Cap.</p>
+              <div class="score-row"><span class="score-badge gold">Wine Spectator 95</span></div>
+            </div>
+            <div class="wine-entry__meta">
+              <div class="wine-entry__year">2019</div>
+              <div class="wine-entry__price">98 €</div>
+              <div class="wine-entry__per">la bouteille</div>
+            </div>
+          </article>
+
+          <article class="wine-entry reveal">
+            <div>
+              <p class="wine-entry__region">Ile Maurice · Domaine de l'Oiseau</p>
+              <h3 class="wine-entry__name">Blanc de Corail</h3>
+              <p class="wine-entry__producer">Domaine de l'Oiseau, Maurice</p>
+              <p class="wine-entry__notes">L'un des rares vins produits à Maurice. Cépages insulaires, sol volcanique. Notes d'ananas, de fleur de coco. Un trésor rarissime.</p>
+            </div>
+            <div class="wine-entry__meta">
+              <div class="wine-entry__year">2023</div>
+              <div class="wine-entry__price">65 €</div>
+              <div class="wine-entry__per">la bouteille</div>
+            </div>
+          </article>
+
+          <article class="wine-entry reveal">
+            <div>
+              <p class="wine-entry__region">Constantia · Afrique du Sud</p>
+              <h3 class="wine-entry__name">Vin de Constance</h3>
+              <p class="wine-entry__producer">Klein Constantia</p>
+              <p class="wine-entry__notes">Vin doux naturel légendaire, connu de Napoléon. Muscat de Frontignan, miel, figues, orange confite. Un classique de l'histoire du vin.</p>
+              <div class="score-row"><span class="score-badge gold">Decanter ★★★★★</span></div>
+            </div>
+            <div class="wine-entry__meta">
+              <div class="wine-entry__year">2020</div>
+              <div class="wine-entry__price">85 €</div>
+              <div class="wine-entry__per">50cl</div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- ══ Sélection du Sommelier ════════════════════════ -->
+      <section class="wine-section" id="sommelier" aria-labelledby="som-title">
+        <div class="wine-section__header">
+          <div>
+            <p class="label-caps reveal">Italie · Espagne · Autres</p>
+            <h2 class="headline-lg reveal reveal-delay-1" id="som-title">Sélection du Sommelier</h2>
+            <div class="divider reveal reveal-delay-1"></div>
+          </div>
+          <p class="reveal reveal-delay-2">Les coups de cœur personnels de notre sommelier — des vins qui l'ont surpris, ému, ou converti. Des découvertes avant tout.</p>
+        </div>
+        <div class="wine-list">
+          <article class="wine-entry reveal">
+            <div>
+              <p class="wine-entry__region">Barolo · Piémont, Italie</p>
+              <h3 class="wine-entry__name">Barolo Cannubi Boschis</h3>
+              <p class="wine-entry__producer">Sandrone Luciano</p>
+              <p class="wine-entry__notes">Le "Roi des vins" en version moderne. Nebbiolo d'exception, notes de rose séchée, goudron, réglisse. Bouche monumentale.</p>
+            </div>
+            <div class="wine-entry__meta">
+              <div class="wine-entry__year">2018</div>
+              <div class="wine-entry__price">160 €</div>
+              <div class="wine-entry__per">la bouteille</div>
+            </div>
+          </article>
+
+          <article class="wine-entry reveal">
+            <div>
+              <p class="wine-entry__region">Priorat · Catalogne, Espagne</p>
+              <h3 class="wine-entry__name">Clos Erasmus</h3>
+              <p class="wine-entry__producer">Daphne Glorian</p>
+              <p class="wine-entry__notes">Garnacha et Cabernet sur licorella (schiste). Texture soyeuse, fruits noirs intenses, minéralité de pierre chauffée. Accord insolite avec nos plats créoles épicés.</p>
+            </div>
+            <div class="wine-entry__meta">
+              <div class="wine-entry__year">2019</div>
+              <div class="wine-entry__price">135 €</div>
+              <div class="wine-entry__per">la bouteille</div>
+            </div>
+          </article>
+
+          <article class="wine-entry reveal">
+            <div>
+              <p class="wine-entry__region">Champagne · France</p>
+              <h3 class="wine-entry__name">Blanc de Blancs Grand Cru</h3>
+              <p class="wine-entry__producer">Jacques Selosse, Avize</p>
+              <p class="wine-entry__notes">Chardonnay oxydatif de Anselme Selosse. Le champagne le plus complexe du monde. Noisette, levure, iode, pomme confite — une expérience unique.</p>
+              <div class="score-row"><span class="score-badge gold">Wine Advocate 99</span></div>
+            </div>
+            <div class="wine-entry__meta">
+              <div class="wine-entry__year">NM</div>
+              <div class="wine-entry__price">45 €</div>
+              <div class="wine-entry__per">au verre (10cl)</div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ── Sommelier bio ──────────────────────────────────── -->
+    <section class="sommelier-section" aria-labelledby="sommelier-bio-title">
+      <div class="container">
+        <div>
+          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=80" alt="Notre sommelier" loading="lazy">
+        </div>
+        <div class="sommelier-content">
+          <p class="label-caps reveal">Notre expert</p>
+          <h2 class="headline-md reveal reveal-delay-1" id="sommelier-bio-title">Marc-André Fontaine<br><small style="font-family:var(--font-body); font-size:14px; font-weight:400; color:var(--on-surface-variant)">Sommelier, Meilleur Ouvrier de France 2023</small></h2>
+          <blockquote class="reveal reveal-delay-2">"Le vin est plus qu'une boisson. C'est un récit de sol, de soleil et d'esprit."</blockquote>
+          <p class="reveal reveal-delay-2">Formé dans les grandes maisons de Bordeaux et de Bourgogne, Marc-André a fait le choix radical de s'installer à La Réunion pour y constituer l'une des caves les plus uniques de l'hémisphère sud.</p>
+          <p class="reveal reveal-delay-3">Sa philosophie : chaque bouteille doit raconter une histoire qui enrichit celle du plat. Il propose des accords mets-vins personnalisés à chaque table, construits le soir même selon les commandes.</p>
+          <a href="index.html#reservation" class="btn btn-outline reveal reveal-delay-3" style="margin-top:var(--space-4);">Demander un accord sur-mesure</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ── Footer ─────────────────────────────────────────────── -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="footer-brand__logo">Oli's Passion</div>
+          <p class="footer-brand__tagline">Gastronomie créole d'exception au cœur de La Réunion.</p>
+        </div>
+        <nav aria-label="Navigation">
+          <h4>Restaurant</h4>
+          <a href="index.html">Accueil</a>
+          <a href="menu.html">Menu</a>
+          <a href="cocktails.html">Cocktails</a>
+          <a href="index.html#reservation">Réservations</a>
+        </nav>
+        <div class="footer-col">
+          <h4>Horaires</h4>
+          <p>Mar – Sam : 19h – 22h30</p>
+          <p>Déjeuner : Ven – Sam</p>
+        </div>
+        <div class="footer-col">
+          <h4>Contact</h4>
+          <p>12 Allée des Flamboyants<br>Saint-Denis, La Réunion</p>
+          <a href="tel:+262262000000">+262 262 XX XX XX</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 Oli's Passion.</span>
+        <span>Conçu par <a href="#" style="color:var(--gold-light)">Aikiro Lab</a></span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const nav = document.getElementById('siteNav');
+    window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 40), { passive: true });
+    document.getElementById('navToggle').addEventListener('click', function() {
+      document.getElementById('navLinks').classList.toggle('open');
+      this.setAttribute('aria-expanded', document.getElementById('navLinks').classList.contains('open'));
+    });
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    document.querySelectorAll('.cat-tab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.cat-tab').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.section)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+  </script>
+</body>
+</html>

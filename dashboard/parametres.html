@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Paramètres — Manager · Oli's Passion</title>
+  <link rel="stylesheet" href="../css/tokens.css">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/dashboard.css">
+  <style>
+    /* ── Settings layout ──────────────────────────────────── */
+    .settings-layout {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: var(--space-4);
+      align-items: start;
+    }
+    .settings-sidebar {
+      background: var(--surface);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      position: sticky;
+      top: 80px;
+    }
+    .settings-sidebar__item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: 13px var(--space-3);
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--on-surface-variant);
+      border-left: 3px solid transparent;
+      cursor: pointer;
+      transition: all var(--duration);
+      border-bottom: 1px solid var(--surface-container-high);
+      background: none;
+      width: 100%;
+      text-align: left;
+    }
+    .settings-sidebar__item:last-child { border-bottom: none; }
+    .settings-sidebar__item:hover { background: var(--surface-container-low); color: var(--on-surface); }
+    .settings-sidebar__item.active {
+      border-left-color: var(--secondary);
+      background: var(--surface-container-low);
+      color: var(--on-surface);
+    }
+
+    /* ── Settings panels ──────────────────────────────────── */
+    .settings-panel { display: none; }
+    .settings-panel.active { display: flex; flex-direction: column; gap: var(--space-4); }
+
+    .settings-card {
+      background: var(--surface);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+    }
+    .settings-card__title {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .settings-card__desc {
+      font-size: 13px;
+      color: var(--on-surface-variant);
+      margin-bottom: var(--space-4);
+    }
+    .settings-card__divider {
+      height: 1px;
+      background: var(--surface-container-high);
+      margin: var(--space-4) 0;
+    }
+
+    /* ── Setting rows ─────────────────────────────────────── */
+    .setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-4);
+      padding-block: var(--space-3);
+      border-bottom: 1px solid var(--surface-container-high);
+    }
+    .setting-row:last-of-type { border-bottom: none; }
+    .setting-row__info { flex: 1; }
+    .setting-row__label {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+    .setting-row__hint { font-size: 12px; color: var(--on-surface-variant); }
+    .setting-row__control { flex-shrink: 0; }
+
+    /* ── Toggle switch ────────────────────────────────────── */
+    .toggle {
+      position: relative;
+      width: 48px;
+      height: 26px;
+      flex-shrink: 0;
+    }
+    .toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+    .toggle-track {
+      position: absolute;
+      inset: 0;
+      border-radius: var(--radius-full);
+      background: var(--surface-container-high);
+      cursor: pointer;
+      transition: background var(--duration);
+    }
+    .toggle-thumb {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: white;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+      transition: transform var(--duration) var(--ease-out);
+      pointer-events: none;
+    }
+    .toggle input:checked + .toggle-track { background: var(--secondary); }
+    .toggle input:checked + .toggle-track + .toggle-thumb { transform: translateX(22px); }
+    .toggle input:focus-visible + .toggle-track { outline: 3px solid var(--secondary); outline-offset: 2px; }
+
+    /* ── Horaires grid ────────────────────────────────────── */
+    .hours-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr auto;
+      gap: var(--space-2);
+      align-items: end;
+    }
+    .hours-grid .field input { font-size: 13px; }
+    .hours-grid .day-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--on-surface-variant);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding-bottom: 10px;
+      grid-column: 1 / -1;
+      border-top: 1px solid var(--surface-container-high);
+      padding-top: var(--space-3);
+    }
+    .hours-grid .day-label:first-child { border-top: none; }
+
+    /* ── Promo table ──────────────────────────────────────── */
+    .promo-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    .promo-table th {
+      text-align: left;
+      padding: 10px var(--space-2);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--on-surface-variant);
+      border-bottom: 1px solid var(--outline-variant);
+    }
+    .promo-table td {
+      padding: 12px var(--space-2);
+      border-bottom: 1px solid var(--surface-container-high);
+    }
+    .promo-table tr:last-child td { border-bottom: none; }
+
+    /* ── Save toast ───────────────────────────────────────── */
+    .save-toast {
+      position: fixed;
+      bottom: var(--space-4);
+      right: var(--space-4);
+      background: var(--primary-container);
+      color: var(--on-primary);
+      padding: 12px var(--space-4);
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 8px 32px rgba(6,27,14,0.2);
+      transform: translateY(80px);
+      transition: transform var(--duration) var(--ease-out), opacity var(--duration);
+      opacity: 0;
+      z-index: 500;
+      pointer-events: none;
+    }
+    .save-toast.show { transform: translateY(0); opacity: 1; }
+
+    @media (max-width: 1024px) {
+      .settings-layout { grid-template-columns: 1fr; }
+      .settings-sidebar { position: static; }
+      .settings-sidebar__item { display: inline-flex; border-left: none; border-bottom: 3px solid transparent; }
+      .settings-sidebar__item.active { border-bottom-color: var(--secondary); }
+      .hours-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 768px) {
+      .hours-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body class="theme-copper">
+<div class="dash-layout">
+
+  <!-- ── Sidebar ──────────────────────────────────────────── -->
+  <aside class="dash-sidebar" id="sidebar" aria-label="Navigation manager">
+    <div class="dash-sidebar__header">
+      <div class="dash-sidebar__logo">Oli's Passion</div>
+      <div class="dash-sidebar__role">Espace Manager</div>
+    </div>
+    <nav class="dash-nav">
+      <a class="dash-nav__item" href="index.html"><span class="dash-nav__icon">🏠</span>Accueil</a>
+      <a class="dash-nav__item" href="resa.html"><span class="dash-nav__icon">📅</span>Réservations<span class="dash-nav__badge">3</span></a>
+      <a class="dash-nav__item" href="plan.html"><span class="dash-nav__icon">🪑</span>Plan de salle</a>
+      <a class="dash-nav__item active" href="parametres.html"><span class="dash-nav__icon">⚙️</span>Paramètres</a>
+      <div style="flex:1"></div>
+      <a class="dash-nav__item" href="../index.html"><span class="dash-nav__icon">↗</span>Voir le site</a>
+    </nav>
+    <div class="dash-sidebar__footer">
+      <div class="dash-sidebar__user">
+        <div class="dash-sidebar__avatar">AO</div>
+        <div class="dash-sidebar__user-info"><strong>Alistair Oli</strong><span>Chef propriétaire</span></div>
+        <button class="dash-sidebar__logout" aria-label="Déconnexion">⏻</button>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <div class="dash-main">
+    <header class="dash-topbar">
+      <div style="display:flex; align-items:center; gap:var(--space-2);">
+        <button class="dash-mobile-toggle" id="mobileToggle" aria-label="Menu">☰</button>
+        <div>
+          <div class="dash-topbar__title">Paramètres</div>
+          <div class="dash-topbar__date" id="currentDate"></div>
+        </div>
+      </div>
+      <div class="dash-topbar__actions">
+        <button class="btn btn-primary" id="saveBtn" style="padding:8px 16px; font-size:12px;">Enregistrer les modifications</button>
+      </div>
+    </header>
+
+    <main class="dash-content">
+      <div class="settings-layout">
+
+        <!-- ── Settings nav ─────────────────────────────── -->
+        <nav class="settings-sidebar" aria-label="Sections des paramètres">
+          <button class="settings-sidebar__item active" data-panel="capacite">🏠 Capacité</button>
+          <button class="settings-sidebar__item" data-panel="horaires">🕐 Horaires</button>
+          <button class="settings-sidebar__item" data-panel="promotions">🎁 Promotions</button>
+          <button class="settings-sidebar__item" data-panel="notifications">🔔 Notifications</button>
+          <button class="settings-sidebar__item" data-panel="restaurant">🍽️ Restaurant</button>
+        </nav>
+
+        <!-- ── Panels ──────────────────────────────────── -->
+        <div>
+
+          <!-- ══ Capacité ══════════════════════════════════ -->
+          <div class="settings-panel active" id="panel-capacite">
+            <div class="settings-card">
+              <h2 class="settings-card__title">Gestion de la capacité</h2>
+              <p class="settings-card__desc">Chaque ajustement ici influence directement l'expérience sensorielle de vos convives — l'intimité commence par l'espace.</p>
+              <div class="settings-card__divider"></div>
+
+              <div class="setting-row">
+                <div class="setting-row__info">
+                  <div class="setting-row__label">Capacité maximale</div>
+                  <div class="setting-row__hint">Nombre total de couverts simultanés. Plage : 10 – 120.</div>
+                </div>
+                <div class="setting-row__control" style="display:flex; align-items:center; gap:8px;">
+                  <input type="number" min="10" max="120" value="42"
+                    style="width:80px; padding:8px 12px; border:1px solid var(--outline-variant); border-radius:var(--radius-md); font-size:16px; font-weight:600; text-align:center; outline:none;"
+                    aria-label="Capacité maximale">
+                  <span style="font-size:13px; color:var(--on-surface-variant);">couverts</span>
+                </div>
+              </div>
+
+              <div class="setting-row">
+                <div class="setting-row__info">
+                  <div class="setting-row__label">Capacité minimale</div>
+                  <div class="setting-row__hint">En dessous de ce seuil, fermeture automatique des réservations.</div>
+                </div>
+                <div class="setting-row__control" style="display:flex; align-items:center; gap:8px;">
+                  <input type="number" min="1" max="42" value="6"
+                    style="width:80px; padding:8px 12px; border:1px solid var(--outline-variant); border-radius:var(--radius-md); font-size:16px; font-weight:600; text-align:center; outline:none;"
+                    aria-label="Capacité minimale">
+                  <span style="font-size:13px; color:var(--on-surface-variant);">couverts</span>
+                </div>
+              </div>
+
+              <div class="setting-row">
+                <div class="setting-row__info">
+                  <div class="setting-row__label">Salon privé activé</div>
+                  <div class="setting-row__hint">Rend le salon disponible pour les groupes (8–12 personnes).</div>
+                </div>
+                <label class="toggle setting-row__control" aria-label="Activer le salon privé">
+                  <input type="checkbox" checked>
+                  <div class="toggle-track"></div>
+                  <div class="toggle-thumb"></div>
+                </label>
+              </div>
+
+              <div class="setting-row">
+                <div class="setting-row__info">
+                  <div class="setting-row__label">Réservations en ligne</div>
+                  <div class="setting-row__hint">Accepter les demandes via le site vitrine.</div>
+                </div>
+                <label class="toggle setting-row__control" aria-label="Activer les réservations en ligne">
+                  <input type="checkbox" checked>
+                  <div class="toggle-track"></div>
+                  <div class="toggle-thumb"></div>
+                </label>
+              </div>
+
+              <div class="setting-row">
+                <div class="setting-row__info">
+                  <div class="setting-row__label">Confirmation automatique</div>
+                  <div class="setting-row__hint">Confirme automatiquement les réservations de 1–4 personnes sans action manuelle.</div>
+                </div>
+                <label class="toggle setting-row__control" aria-label="Activer la confirmation automatique">
+                  <input type="checkbox">
+                  <div class="toggle-track"></div>
+                  <div class="toggle-thumb"></div>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- ══ Horaires ═══════════════════════════════════ -->
+          <div class="settings-panel" id="panel-horaires">
+            <div class="settings-card">
+              <h2 class="settings-card__title">Horaires d'ouverture</h2>
+              <p class="settings-card__desc">Définissez les créneaux de déjeuner et de dîner pour chaque jour de la semaine.</p>
+              <div class="settings-card__divider"></div>
+              <div class="hours-grid">
+                <div class="day-label">🍽️ Déjeuner</div>
+                <div class="field"><label>Jour</label><select><option>Vendredi</option><option>Samedi</option></select></div>
+                <div class="field"><label>Ouverture</label><input type="time" value="12:00"></div>
+                <div class="field"><label>Fermeture</label><input type="time" value="14:30"></div>
+                <div></div>
+
+                <div class="day-label">🌙 Dîner</div>
+                <div class="field"><label>Ouverture</label><input type="time" value="19:00"></div>
+                <div class="field"><label>Fermeture</label><input type="time" value="22:30"></div>
+                <div class="field"><label>Dernière entrée</label><input type="time" value="21:30"></div>
+                <div></div>
+
+                <div class="day-label">📅 Jours de fermeture</div>
+              </div>
+              <div style="display:flex; gap:var(--space-2); flex-wrap:wrap; margin-top:var(--space-3);">
+                <span id="day-lun" style="padding:8px 16px;border-radius:var(--radius-full);font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--secondary);background:var(--secondary);color:#fff;">Lun</span>
+                <span id="day-dim" style="padding:8px 16px;border-radius:var(--radius-full);font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--secondary);background:var(--secondary);color:#fff;">Dim</span>
+                <span style="padding:8px 16px;border-radius:var(--radius-full);font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--outline-variant);background:transparent;color:var(--on-surface-variant);">Mar</span>
+                <span style="padding:8px 16px;border-radius:var(--radius-full);font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--outline-variant);background:transparent;color:var(--on-surface-variant);">Mer</span>
+                <span style="padding:8px 16px;border-radius:var(--radius-full);font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--outline-variant);background:transparent;color:var(--on-surface-variant);">Jeu</span>
+                <span style="padding:8px 16px;border-radius:var(--radius-full);font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--outline-variant);background:transparent;color:var(--on-surface-variant);">Ven</span>
+                <span style="padding:8px 16px;border-radius:var(--radius-full);font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--outline-variant);background:transparent;color:var(--on-surface-variant);">Sam</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ══ Promotions ══════════════════════════════════ -->
+          <div class="settings-panel" id="panel-promotions">
+            <div class="settings-card">
+              <h2 class="settings-card__title">Stratégies promotionnelles</h2>
+              <p class="settings-card__desc">Gérez vos offres spéciales pour optimiser le taux de remplissage sans compromettre l'exclusivité.</p>
+              <div class="settings-card__divider"></div>
+              <table class="promo-table">
+                <thead>
+                  <tr>
+                    <th>Offre</th>
+                    <th>Jours</th>
+                    <th>Réduction</th>
+                    <th>Statut</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Early Bird</strong><br><small style="color:var(--on-surface-variant)">Réservation avant 17h</small></td>
+                    <td>Mar – Mer</td>
+                    <td><strong style="color:var(--secondary)">– 15 %</strong></td>
+                    <td><label class="toggle"><input type="checkbox" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label></td>
+                    <td><button class="btn btn-outline" style="padding:6px 12px; font-size:11px;">Éditer</button></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Menu Découverte</strong><br><small style="color:var(--on-surface-variant)">Menu 4 services à tarif réduit</small></td>
+                    <td>Jeu soir</td>
+                    <td><strong style="color:var(--secondary)">95 € / pers.</strong></td>
+                    <td><label class="toggle"><input type="checkbox" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label></td>
+                    <td><button class="btn btn-outline" style="padding:6px 12px; font-size:11px;">Éditer</button></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Happy Hour Cave</strong><br><small style="color:var(--on-surface-variant)">Sélection vins au verre – 20%</small></td>
+                    <td>Tous les jours</td>
+                    <td><strong style="color:var(--secondary)">18h – 19h30</strong></td>
+                    <td><label class="toggle"><input type="checkbox"><div class="toggle-track"></div><div class="toggle-thumb"></div></label></td>
+                    <td><button class="btn btn-outline" style="padding:6px 12px; font-size:11px;">Éditer</button></td>
+                  </tr>
+                </tbody>
+              </table>
+              <div style="margin-top:var(--space-4);">
+                <button class="btn btn-outline" style="font-size:12px;">+ Ajouter une offre</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ══ Notifications ══════════════════════════════ -->
+          <div class="settings-panel" id="panel-notifications">
+            <div class="settings-card">
+              <h2 class="settings-card__title">Notifications</h2>
+              <p class="settings-card__desc">Choisissez quand et comment être alerté des événements importants.</p>
+              <div class="settings-card__divider"></div>
+              <div class="setting-row">
+                <div class="setting-row__info">
+                  <div class="setting-row__label">Nouvelle réservation</div>
+                  <div class="setting-row__hint">Alerte immédiate à chaque demande reçue</div>
+                </div>
+                <label class="toggle setting-row__control"><input type="checkbox" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+              </div>
+              <div class="setting-row">
+                <div class="setting-row__info">
+                  <div class="setting-row__label">Rappel service (2h avant)</div>
+                  <div class="setting-row__hint">Récapitulatif des couverts du soir à 17h00</div>
+                </div>
+                <label class="toggle setting-row__control"><input type="checkbox" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+              </div>
+              <div class="setting-row">
+                <div class="setting-row__info">
+                  <div class="setting-row__label">Annulation de réservation</div>
+                  <div class="setting-row__hint">Notification push + email</div>
+                </div>
+                <label class="toggle setting-row__control"><input type="checkbox" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+              </div>
+              <div class="setting-row">
+                <div class="setting-row__info">
+                  <div class="setting-row__label">Alerte stock cuisine</div>
+                  <div class="setting-row__hint">Quand un ingrédient critique passe en dessous du seuil</div>
+                </div>
+                <label class="toggle setting-row__control"><input type="checkbox" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+              </div>
+              <div class="settings-card__divider"></div>
+              <div class="field" style="max-width:400px;">
+                <label for="notif-email">Email de notification</label>
+                <input type="email" id="notif-email" value="manager@olispassion.re">
+              </div>
+            </div>
+          </div>
+
+          <!-- ══ Restaurant ══════════════════════════════════ -->
+          <div class="settings-panel" id="panel-restaurant">
+            <div class="settings-card">
+              <h2 class="settings-card__title">Informations restaurant</h2>
+              <p class="settings-card__desc">Ces informations apparaissent sur le site vitrine et les confirmations de réservation.</p>
+              <div class="settings-card__divider"></div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-4);">
+                <div class="field">
+                  <label for="r-nom">Nom du restaurant</label>
+                  <input type="text" id="r-nom" value="Oli's Passion">
+                </div>
+                <div class="field">
+                  <label for="r-chef">Chef propriétaire</label>
+                  <input type="text" id="r-chef" value="Alistair Oli">
+                </div>
+                <div class="field" style="grid-column:1/-1;">
+                  <label for="r-adresse">Adresse</label>
+                  <input type="text" id="r-adresse" value="12 Allée des Flamboyants, Saint-Denis, La Réunion">
+                </div>
+                <div class="field">
+                  <label for="r-tel">Téléphone</label>
+                  <input type="tel" id="r-tel" value="+262 262 XX XX XX">
+                </div>
+                <div class="field">
+                  <label for="r-email">Email contact</label>
+                  <input type="email" id="r-email" value="contact@olispassion.re">
+                </div>
+                <div class="field" style="grid-column:1/-1;">
+                  <label for="r-desc">Description courte (site)</label>
+                  <textarea id="r-desc" rows="2">Gastronomie créole d'exception au cœur de La Réunion. Étoile Michelin 2026.</textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ── Toast ──────────────────────────────────────────────── -->
+<div class="save-toast" id="saveToast" role="status" aria-live="polite">
+  ✅ Paramètres enregistrés avec succès
+</div>
+
+<script>
+  document.getElementById('currentDate').textContent =
+    new Date().toLocaleDateString('fr-FR', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  document.getElementById('mobileToggle').addEventListener('click', () => {
+    sidebar.classList.toggle('open'); overlay.classList.toggle('open');
+  });
+  overlay.addEventListener('click', () => { sidebar.classList.remove('open'); overlay.classList.remove('open'); });
+
+  // Settings nav
+  document.querySelectorAll('.settings-sidebar__item').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.settings-sidebar__item').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.settings-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+    });
+  });
+
+  // Save toast
+  document.getElementById('saveBtn').addEventListener('click', () => {
+    const toast = document.getElementById('saveToast');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3000);
+  });
+
+  // Day toggles in horaires
+  document.querySelectorAll('[id^="day-"]').forEach(day => {
+    day.addEventListener('click', () => {
+      const active = day.style.background === 'var(--secondary)' || day.style.background.includes('#96');
+      day.style.background = active ? 'transparent' : 'var(--secondary)';
+      day.style.color = active ? 'var(--on-surface-variant)' : '#fff';
+      day.style.borderColor = active ? 'var(--outline-variant)' : 'var(--secondary)';
+    });
+  });
+</script>
+</body>
+</html>

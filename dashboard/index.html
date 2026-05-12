@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tableau de bord — Manager · Oli's Passion</title>
+  <link rel="stylesheet" href="../css/tokens.css">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/dashboard.css">
+  <style>
+    /* ── Service summary bars ─────────────────────────────── */
+    .service-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-3);
+    }
+    .service-card {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--outline-variant);
+      padding: var(--space-4);
+    }
+    .service-card__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-3);
+    }
+    .service-card__header h3 {
+      font-size: 15px;
+      font-weight: 600;
+    }
+    .service-card__time {
+      font-size: 12px;
+      color: var(--on-surface-variant);
+    }
+    .occupancy-bar {
+      height: 8px;
+      background: var(--surface-container-high);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+      margin-bottom: 6px;
+    }
+    .occupancy-bar__fill {
+      height: 100%;
+      border-radius: var(--radius-full);
+      background: linear-gradient(90deg, var(--primary-container), var(--secondary));
+      transition: width 800ms var(--ease-out);
+    }
+    .occupancy-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--on-surface-variant);
+    }
+    .occupancy-label strong { color: var(--on-surface); }
+
+    /* ── Upcoming reservations ─────────────────────────────── */
+    .resa-list { display: flex; flex-direction: column; gap: 2px; }
+    .resa-item {
+      display: grid;
+      grid-template-columns: 48px 1fr auto;
+      align-items: center;
+      gap: var(--space-2);
+      padding: 12px var(--space-3);
+      border-radius: var(--radius-md);
+      transition: background var(--duration);
+    }
+    .resa-item:hover { background: var(--surface-container-low); }
+    .resa-item__time {
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--primary-container);
+      text-align: center;
+    }
+    .resa-item__name { font-weight: 600; font-size: 14px; }
+    .resa-item__detail { font-size: 12px; color: var(--on-surface-variant); }
+    .resa-item__covers {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--on-surface-variant);
+      white-space: nowrap;
+    }
+
+    /* ── Quick actions ─────────────────────────────────────── */
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-2);
+    }
+    .quick-action {
+      background: var(--surface);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      text-align: center;
+      cursor: pointer;
+      transition: all var(--duration) var(--ease-out);
+      text-decoration: none;
+      color: var(--on-surface);
+    }
+    .quick-action:hover {
+      border-color: var(--secondary);
+      box-shadow: 0 4px 16px rgba(150,72,45,0.1);
+      transform: translateY(-2px);
+    }
+    .quick-action__icon { font-size: 24px; margin-bottom: var(--space-1); }
+    .quick-action__label {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--on-surface-variant);
+    }
+
+    @media (max-width: 768px) {
+      .service-grid { grid-template-columns: 1fr; }
+      .quick-actions { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body class="theme-copper">
+<div class="dash-layout">
+
+  <!-- ── Sidebar ──────────────────────────────────────────── -->
+  <aside class="dash-sidebar" id="sidebar" aria-label="Navigation manager">
+    <div class="dash-sidebar__header">
+      <div class="dash-sidebar__logo">Oli's Passion</div>
+      <div class="dash-sidebar__role">Espace Manager</div>
+    </div>
+    <nav class="dash-nav" aria-label="Menu principal">
+      <a class="dash-nav__item active" href="index.html">
+        <span class="dash-nav__icon">🏠</span>Accueil
+      </a>
+      <a class="dash-nav__item" href="resa.html">
+        <span class="dash-nav__icon">📅</span>Réservations
+        <span class="dash-nav__badge">3</span>
+      </a>
+      <a class="dash-nav__item" href="plan.html">
+        <span class="dash-nav__icon">🪑</span>Plan de salle
+      </a>
+      <a class="dash-nav__item" href="parametres.html">
+        <span class="dash-nav__icon">⚙️</span>Paramètres
+      </a>
+      <div style="flex:1"></div>
+      <a class="dash-nav__item" href="../index.html" style="margin-top:auto;">
+        <span class="dash-nav__icon">↗</span>Voir le site
+      </a>
+    </nav>
+    <div class="dash-sidebar__footer">
+      <div class="dash-sidebar__user">
+        <div class="dash-sidebar__avatar">AO</div>
+        <div class="dash-sidebar__user-info">
+          <strong>Alistair Oli</strong>
+          <span>Chef propriétaire</span>
+        </div>
+        <button class="dash-sidebar__logout" title="Déconnexion" aria-label="Déconnexion">⏻</button>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- ── Main ─────────────────────────────────────────────── -->
+  <div class="dash-main">
+    <header class="dash-topbar">
+      <div style="display:flex; align-items:center; gap:var(--space-2);">
+        <button class="dash-mobile-toggle" id="mobileToggle" aria-label="Menu">☰</button>
+        <div>
+          <div class="dash-topbar__title">Bonjour, Alistair 👋</div>
+          <div class="dash-topbar__date" id="currentDate"></div>
+        </div>
+      </div>
+      <div class="dash-topbar__actions">
+        <button class="icon-btn has-notif" title="Notifications" aria-label="Notifications">🔔</button>
+        <a href="../index.html" class="btn btn-outline" style="padding:8px 16px; font-size:12px;">Voir le site</a>
+      </div>
+    </header>
+
+    <main class="dash-content" aria-label="Tableau de bord">
+
+      <!-- ── Alertes ──────────────────────────────────────── -->
+      <div class="dash-section">
+        <div class="alert warning">
+          <span class="alert__icon">⚠️</span>
+          <div class="alert__text">
+            <strong>Stock truffe noire</strong>
+            Niveau critique — moins de 200g restants. Commander avant le service de vendredi.
+          </div>
+        </div>
+        <div class="alert info">
+          <span class="alert__icon">ℹ️</span>
+          <div class="alert__text">
+            <strong>Modification table 7</strong>
+            Jean Dupont a demandé un transfert vers la table 3 (fenêtre) pour ce soir à 20h.
+          </div>
+        </div>
+      </div>
+
+      <!-- ── KPIs ─────────────────────────────────────────── -->
+      <div class="dash-section">
+        <div class="dash-section__title">Ce soir — Vue d'ensemble</div>
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-card__label">Couverts confirmés</div>
+            <div class="kpi-card__value" data-count="84">0</div>
+            <div class="kpi-card__sub">
+              sur 120 places
+              <span class="kpi-card__trend up">↑ +5%</span>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-card__label">Taux d'occupation</div>
+            <div class="kpi-card__value" data-count-pct="70">0%</div>
+            <div class="kpi-card__sub">
+              vs 65% hier
+              <span class="kpi-card__trend up">↑ trending</span>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-card__label">Réservations en attente</div>
+            <div class="kpi-card__value" style="color:var(--secondary)" data-count="3">0</div>
+            <div class="kpi-card__sub">
+              à confirmer
+              <span class="kpi-card__trend neutral">→ action requise</span>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-card__label">Chiffre d'affaires prévu</div>
+            <div class="kpi-card__value">8.4k</div>
+            <div class="kpi-card__sub">
+              € estimé ce soir
+              <span class="kpi-card__trend up">↑ +12%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Services du jour ─────────────────────────────── -->
+      <div class="dash-section">
+        <div class="dash-section__title">Services du jour</div>
+        <div class="service-grid">
+          <div class="service-card">
+            <div class="service-card__header">
+              <h3>Service du déjeuner</h3>
+              <span class="service-card__time">12h00 – 14h30</span>
+            </div>
+            <div class="occupancy-bar">
+              <div class="occupancy-bar__fill" style="width:58%"></div>
+            </div>
+            <div class="occupancy-label">
+              <span><strong>28</strong> couverts</span>
+              <span>sur 48 places · <strong>58%</strong></span>
+            </div>
+          </div>
+          <div class="service-card">
+            <div class="service-card__header">
+              <h3>Service du dîner</h3>
+              <span class="service-card__time">19h00 – 22h30</span>
+            </div>
+            <div class="occupancy-bar">
+              <div class="occupancy-bar__fill" style="width:70%"></div>
+            </div>
+            <div class="occupancy-label">
+              <span><strong>84</strong> couverts</span>
+              <span>sur 120 places · <strong>70%</strong></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Prochaines réservations ─────────────────────── -->
+      <div class="dash-section">
+        <div class="dash-section__title">Prochaines réservations ce soir</div>
+        <div class="dash-table-wrap">
+          <div class="resa-list" style="padding: var(--space-2);">
+            <div class="resa-item">
+              <div class="resa-item__time">19h00</div>
+              <div>
+                <div class="resa-item__name">Jean Dupont</div>
+                <div class="resa-item__detail">Table 3 · Fenêtre · Note : occasion anniversaire</div>
+              </div>
+              <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
+                <span class="resa-item__covers">4 pers.</span>
+                <span class="status-badge confirmed">Confirmé</span>
+              </div>
+            </div>
+            <div class="resa-item">
+              <div class="resa-item__time">19h30</div>
+              <div>
+                <div class="resa-item__name">Marie Lefebvre</div>
+                <div class="resa-item__detail">Table 7 · Anniversaire de mariage</div>
+              </div>
+              <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
+                <span class="resa-item__covers">2 pers.</span>
+                <span class="status-badge confirmed">Confirmé</span>
+              </div>
+            </div>
+            <div class="resa-item">
+              <div class="resa-item__time">20h00</div>
+              <div>
+                <div class="resa-item__name">Pierre Martin</div>
+                <div class="resa-item__detail">Table 5 · Végétarien (2 personnes)</div>
+              </div>
+              <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
+                <span class="resa-item__covers">4 pers.</span>
+                <span class="status-badge pending">En attente</span>
+              </div>
+            </div>
+            <div class="resa-item">
+              <div class="resa-item__time">20h30</div>
+              <div>
+                <div class="resa-item__name">Lucie Bernard</div>
+                <div class="resa-item__detail">Salon privé · Groupe — menu dégustation</div>
+              </div>
+              <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
+                <span class="resa-item__covers">8 pers.</span>
+                <span class="status-badge confirmed">Confirmé</span>
+              </div>
+            </div>
+            <div class="resa-item">
+              <div class="resa-item__time">21h00</div>
+              <div>
+                <div class="resa-item__name">Thomas Rivière</div>
+                <div class="resa-item__detail">Table 10 · Demande en mariage — surprise</div>
+              </div>
+              <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
+                <span class="resa-item__covers">2 pers.</span>
+                <span class="status-badge pending">En attente</span>
+              </div>
+            </div>
+          </div>
+          <div style="padding: var(--space-2) var(--space-4); border-top: 1px solid var(--outline-variant);">
+            <a href="resa.html" class="btn btn-outline" style="padding:8px 16px; font-size:12px;">Voir toutes les réservations →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Actions rapides ──────────────────────────────── -->
+      <div class="dash-section">
+        <div class="dash-section__title">Actions rapides</div>
+        <div class="quick-actions">
+          <a href="resa.html" class="quick-action">
+            <div class="quick-action__icon">➕</div>
+            <div class="quick-action__label">Nouvelle réservation</div>
+          </a>
+          <a href="plan.html" class="quick-action">
+            <div class="quick-action__icon">🪑</div>
+            <div class="quick-action__label">Plan de salle</div>
+          </a>
+          <a href="parametres.html" class="quick-action">
+            <div class="quick-action__icon">🕐</div>
+            <div class="quick-action__label">Horaires</div>
+          </a>
+          <a href="../index.html" class="quick-action">
+            <div class="quick-action__icon">🌐</div>
+            <div class="quick-action__label">Voir le site</div>
+          </a>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+  // Date
+  document.getElementById('currentDate').textContent =
+    new Date().toLocaleDateString('fr-FR', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+  // Mobile sidebar
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  document.getElementById('mobileToggle').addEventListener('click', () => {
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('open');
+  });
+  overlay.addEventListener('click', () => {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('open');
+  });
+
+  // KPI counters
+  document.querySelectorAll('[data-count]').forEach(el => {
+    const target = +el.dataset.count;
+    let current  = 0;
+    const step   = Math.ceil(target / 40);
+    const timer  = setInterval(() => {
+      current = Math.min(current + step, target);
+      el.textContent = current;
+      if (current >= target) clearInterval(timer);
+    }, 25);
+  });
+  document.querySelectorAll('[data-count-pct]').forEach(el => {
+    const target = +el.dataset.countPct;
+    let current  = 0;
+    const timer  = setInterval(() => {
+      current = Math.min(current + 2, target);
+      el.textContent = current + '%';
+      if (current >= target) clearInterval(timer);
+    }, 25);
+  });
+</script>
+</body>
+</html>

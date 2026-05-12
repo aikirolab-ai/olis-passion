@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Menu Gastronomique — Oli's Passion</title>
+  <meta name="description" content="La carte éphémère d'Oli's Passion : une cuisine créole de précision ancrée dans le terroir de La Réunion.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=Hanken+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+
+    /* ── Page base ────────────────────────────────────────────── */
+    body { background: #0B0B0B; }
+
+    /* ── Universal nav — identique à index.html ──────────────── */
+    .uni-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      background: #121416;
+      transition: background 0.35s ease, backdrop-filter 0.35s ease,
+                  border-color 0.35s ease, box-shadow 0.35s ease;
+    }
+    .uni-nav.scrolled {
+      background: rgba(18,20,22,0.96);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(184,115,51,0.14);
+      box-shadow: 0 1px 20px rgba(0,0,0,0.5);
+    }
+    .uni-nav__inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 16px 24px;
+    }
+    .uni-nav__logo {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 22px; font-style: italic; letter-spacing: -0.01em;
+      background: linear-gradient(120deg, #B87333 0%, #C5A059 40%, #ddd0b0 75%, #F9F5F0 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      text-decoration: none;
+    }
+    .uni-nav__links { display: none; }
+    @media (min-width: 768px) {
+      .uni-nav__links { display: flex; align-items: center; gap: 48px; }
+    }
+    .uni-nav__links a {
+      font-family: 'Hanken Grotesk', system-ui, sans-serif;
+      font-size: 12px; font-weight: 600; letter-spacing: 0.1em;
+      color: #d8c3b4; text-decoration: none;
+      transition: color 0.3s;
+    }
+    .uni-nav__links a:hover { color: #ffb77b; }
+    .uni-nav__links a.active {
+      color: #ffb77b;
+      border-bottom: 1px solid #ffb77b;
+      padding-bottom: 4px;
+    }
+    .uni-nav__btn {
+      background: #c8803f; color: #432100;
+      padding: 8px 24px;
+      font-family: 'Hanken Grotesk', system-ui, sans-serif;
+      font-size: 12px; font-weight: 600;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      border: none; cursor: pointer;
+      transition: opacity 0.3s;
+    }
+    .uni-nav__btn:hover { opacity: 0.8; }
+
+    /* ── Hero ─────────────────────────────────────────────────── */
+    .menu-hero {
+      position: relative; height: 100vh;
+      display: flex; align-items: flex-end;
+      overflow: hidden;
+    }
+    .menu-hero__bg {
+      position: absolute; inset: 0;
+      background: linear-gradient(160deg, #0d0d0d 0%, #1a1208 45%, #0d0a06 100%);
+    }
+    .menu-hero__bg::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 60% 40%, rgba(197,160,89,0.06) 0%, transparent 70%);
+    }
+    .menu-hero__bg img {
+      -webkit-mask-image:
+        radial-gradient(ellipse 90% 85% at 50% 45%, rgba(0,0,0,0.75) 5%, rgba(0,0,0,0) 90%),
+        linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.8) 85%, rgba(0,0,0,1) 100%);
+      -webkit-mask-composite: destination-in;
+      mask-image:
+        radial-gradient(ellipse 90% 85% at 50% 45%, rgba(0,0,0,0.75) 5%, rgba(0,0,0,0) 90%),
+        linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.8) 85%, rgba(0,0,0,1) 100%);
+      mask-composite: intersect;
+    }
+    .menu-hero__vignette {
+      position: absolute; inset: 0;
+      background:
+        linear-gradient(to bottom, rgba(11,11,11,0.1) 0%, rgba(11,11,11,0.35) 55%, rgba(11,11,11,1) 100%),
+        linear-gradient(to right, rgba(11,11,11,0.6) 0%, transparent 30%, transparent 70%, rgba(11,11,11,0.6) 100%);
+    }
+    /* Scroll veil overlay */
+    .menu-hero__veil {
+      position: absolute; inset: 0;
+      background: #0B0B0B;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .menu-hero__content { z-index: 3; }
+    .menu-hero__scroll  { z-index: 3; }
+    .menu-hero__content {
+      position: relative; z-index: 3;
+      padding: 0 48px 96px;
+      max-width: 900px;
+    }
+    .menu-hero__label {
+      font-family: 'Hanken Grotesk', system-ui, sans-serif;
+      font-size: 11px; font-weight: 600;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      color: #C5A059;
+      margin-bottom: 20px;
+      opacity: 0; transform: translateX(-24px);
+    }
+    .menu-hero__title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(56px, 8vw, 104px);
+      font-style: italic; font-weight: 400;
+      color: #F9F5F0;
+      line-height: 1.0;
+      margin-bottom: 28px;
+      text-shadow: 0 0 80px rgba(197,160,89,0.2);
+      opacity: 0; transform: translateX(-32px);
+    }
+    .menu-hero__quote {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 18px; font-style: italic;
+      color: rgba(249,245,240,0.72);
+      max-width: 480px; line-height: 1.7;
+      opacity: 0; transform: translateX(-24px);
+    }
+    .menu-hero__scroll {
+      position: absolute; bottom: 40px; right: 48px; z-index: 3;
+      display: flex; align-items: center; gap: 12px;
+      font-family: 'Hanken Grotesk', system-ui, sans-serif;
+      font-size: 11px; font-weight: 500;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      color: rgba(249,245,240,0.3);
+      opacity: 0;
+    }
+    .menu-hero__scroll-line {
+      width: 40px; height: 1px;
+      background: linear-gradient(to right, transparent, rgba(197,160,89,0.5));
+      animation: scroll-line 2s ease-in-out infinite;
+    }
+    @keyframes scroll-line {
+      0%, 100% { opacity: 0.4; transform: scaleX(1); }
+      50% { opacity: 1; transform: scaleX(1.2); transform-origin: left; }
+    }
+
+    /* ── Section common ───────────────────────────────────────── */
+    .menu-section {
+      padding: 96px 48px;
+      border-bottom: 1px solid rgba(197,160,89,0.08);
+      max-width: 1280px; margin: 0 auto;
+    }
+    .menu-section:last-of-type { border-bottom: none; }
+
+    .section-label {
+      font-family: 'Hanken Grotesk', system-ui, sans-serif;
+      font-size: 11px; font-weight: 600;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      color: #C5A059; margin-bottom: 12px;
+    }
+    .section-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(36px, 5vw, 64px);
+      font-style: italic; font-weight: 400;
+      color: #F9F5F0; line-height: 1.1;
+      margin-bottom: 16px;
+    }
+    .section-divider {
+      width: 48px; height: 1px;
+      background: linear-gradient(to right, #C5A059, transparent);
+      margin-bottom: 24px;
+    }
+    .section-desc {
+      font-family: 'Hanken Grotesk', system-ui, sans-serif;
+      font-size: 16px; color: rgba(249,245,240,0.5);
+      line-height: 1.7; max-width: 480px;
+    }
+
+    /* ── Photo banner ─────────────────────────────────────────── */
+    .photo-banner {
+      width: 100%; height: 320px;
+      border-radius: 4px; overflow: hidden;
+      position: relative;
+      margin-bottom: 56px;
+    }
+    .photo-banner--sm { height: 240px; margin-bottom: 0; }
+    .photo-banner__inner {
+      width: 100%; height: 100%;
+      object-fit: cover; display: block;
+      transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    .photo-banner:hover .photo-banner__inner { transform: scale(1.03); }
+    .photo-banner__overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to bottom, rgba(11,11,11,0.1) 0%, rgba(11,11,11,0.55) 100%);
+    }
+
+    /* Hero photo ─────────────────────────────────────────────── */
+    .menu-hero__bg img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      filter: grayscale(100%);
+    }
+
+    /* Signature photo ────────────────────────────────────────── */
+    .signature-image__inner img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+    }
+
+    /* ── Menu item grid (2-col) ───────────────────────────────── */
+    .items-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: rgba(197,160,89,0.08);
+      border: 1px solid rgba(197,160,89,0.08);
+      border-radius: 4px; overflow: hidden;
+    }
+    .menu-item {
+      background: #0B0B0B;
+      padding: 36px 32px;
+      transition: background 0.3s ease;
+      position: relative;
+    }
+    .menu-item:hover { background: rgba(197,160,89,0.04); }
+    .menu-item__name {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 22px; font-weight: 400;
+      color: #F9F5F0; line-height: 1.25;
+      margin-bottom: 8px;
+    }
+    .menu-item__name em { font-style: italic; color: rgba(249,245,240,0.6); }
+    .menu-item__desc {
+      font-family: 'Hanken Grotesk', system-ui, sans-serif;
+      font-size: 14px; color: rgba(249,245,240,0.45);
+      line-height: 1.7; margin-bottom: 20px;
+    }
+    .menu-item__footer {
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .menu-item__tags { display: flex; gap: 6px; }
+    .menu-item__tag {
+      font-family: 'Hanken Grotesk', system-ui, sans-serif;
+      font-size: 10px; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: rgba(197,160,89,0.7);
+      border: 1px solid rgba(197,160,89,0.25);
+      padding: 2px 8px; border-radius: 100px;
+    }
+    .menu-item__price {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 24px; font-weight: 600;
+      color: #C5A059;
+    }
+
+    /* ── Plats — split layout ─────────────────────────────────── */
+    .plats-layout {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 40px; align-items: start;
+    }
+    .plats-list { display: flex; flex-direction: column; gap: 1px; }
+    .plat-item {
+      background: #0d0d0d;
+      border: 1px solid rgba(197,160,89,0.08);
+      padding: 40px 36px;
+      border-radius: 4px;
+      transition: background 0.3s ease, border-color 0.3s ease;
+    }
+    .plat-item:hover {
+      background: rgba(197,160,89,0.03);
+      border-color: rgba(197,160,89,0.18);
+    }
+    .plat-item__header {
+      display: flex; align-items: flex-start;
+      justify-content: space-between; gap: 24px;
+      margin-bottom: 12px;
+    }
+    .plat-item__name {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 26px; font-weight: 400;
+      color: #F9F5F0; line-height: 1.2;
+    }
+    .plat-item__name em { font-style: italic; color: rgba(249,245,240,0.55); }
+    .plat-item__price {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 28px; font-weight: 600;
+      color: #C5A059; white-space: nowrap;
+    }
+    .plat-item__desc {
+      font-family: 'Hanken Grotesk', system-ui, sans-serif;
+      font-size: 14px; color: rgba(249,245,240,0.45);
+      line-height: 1.75;
+    }
+    .plats-side { position: sticky; top: 120px; }
+
+    /* ── Signature ────────────────────────────────────────────── */
+    .signature-section {
+      padding: 96px 48px;
+      background: #0d0a06;
+      border-top: 1px solid rgba(197,160,89,0.08);
+      border-bottom: 1px solid rgba(197,160,89,0.08);
+    }
+    .signature-inner {
+      max-width: 1280px; margin: 0 auto;
+      display: grid; grid-template-columns: 1fr 420px;
+      gap: 80px; align-items: center;
+    }
+    .signature-badge {
+      display: inline-block;
+      font-family: 'Hanken Grotesk', system-ui, sans-serif;
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: #C5A059;
+      border: 1px solid rgba(197,160,89,0.35);
+      padding: 4px 14px; border-radius: 100px;
+      margin-bottom: 24px;
+    }
+    .signature-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(40px, 5vw, 72px);
+      font-style: italic; font-weight: 400;
+      color: #F9F5F0; line-height: 1.1;
+      margin-bottom: 12px;
+    }
+    .signature-subtitle {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 20px; font-style: italic;
+      color: rgba(249,245,240,0.45);
+      margin-bottom: 28px;
+    }
+    .signature-desc {
+      font-family: 'Hanken Grotesk', system-ui, sans-serif;
+      font-size: 15px; color: rgba(249,245,240,0.5);
+      line-height: 1.8; max-width: 480px;
+      margin-bottom: 40px;
+    }
+    .signature-price {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 56px; font-weight: 600; line-height: 1;
+      color: #C5A059;
+    }
+    .signature-price span {
+      font-family: 'Hanken Grotesk', system-ui, sans-serif;
+      font-size: 16px; font-weight: 400;
+      color: rgba(249,245,240,0.4); margin-left: 8px;
+    }
+    .signature-image-wrap {
+      position: relative;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .signature-image {
+      width: 340px; height: 340px;
+      border-radius: 50%; overflow: hidden;
+      border: 1px solid rgba(197,160,89,0.2);
+      position: relative;
+    }
+    .signature-image__inner {
+      width: 100%; height: 100%;
+      background: radial-gradient(circle at 40% 40%, #2a1e10 0%, #0d0b08 100%);
+      filter: grayscale(100%);
+      transition: filter 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    .signature-image:hover .signature-image__inner { filter: grayscale(0%); }
+    .signature-image__ring {
+      position: absolute; inset: -12px;
+      border-radius: 50%;
+      border: 1px solid rgba(197,160,89,0.15);
+      animation: ring-pulse 3s ease-in-out infinite;
+    }
+    @keyframes ring-pulse {
+      0%, 100% { opacity: 0.4; transform: scale(1); }
+      50% { opacity: 0.8; transform: scale(1.02); }
+    }
+
+    /* ── Desserts grid ────────────────────────────────────────── */
+    .desserts-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 24px; margin-top: 48px;
+    }
+    .dessert-card {
+      background: #0d0d0d;
+      border: 1px solid rgba(197,160,89,0.08);
+      border-radius: 4px; padding: 36px 28px;
+      transition: border-color 0.3s ease, background 0.3s ease;
+    }
+    .dessert-card:hover {
+      border-color: rgba(197,160,89,0.22);
+      background: rgba(197,160,89,0.03);
+    }
+    .dessert-card__name {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 22px; font-style: italic;
+      color: #F9F5F0; margin-bottom: 12px;
+    }
+    .dessert-card__desc {
+      font-family: 'Hanken Grotesk', system-ui, sans-serif;
+      font-size: 13px; color: rgba(249,245,240,0.45);
+      line-height: 1.75; margin-bottom: 24px;
+    }
+    .dessert-card__price {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 26px; font-weight: 600; color: #C5A059;
+    }
+
+    /* ── Tasting CTA ──────────────────────────────────────────── */
+    .tasting-cta {
+      padding: 96px 48px;
+      text-align: center;
+      background: linear-gradient(180deg, #0B0B0B 0%, #100e08 50%, #0B0B0B 100%);
+      border-top: 1px solid rgba(197,160,89,0.08);
+    }
+    .tasting-cta__label {
+      font-family: 'Hanken Grotesk', system-ui, sans-serif;
+      font-size: 11px; font-weight: 600;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      color: #C5A059; margin-bottom: 16px;
+    }
+    .tasting-cta__title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(40px, 6vw, 80px);
+      font-style: italic; color: #F9F5F0;
+      line-height: 1.1; margin-bottom: 20px;
+    }
+    .tasting-cta__price {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 80px; font-weight: 600;
+      color: #C5A059; line-height: 1;
+      margin-bottom: 8px;
+    }
+    .tasting-cta__price-note {
+      font-family: 'Hanken Grotesk', system-ui, sans-serif;
+      font-size: 14px; color: rgba(249,245,240,0.35);
+      margin-bottom: 32px;
+    }
+    .tasting-cta__desc {
+      font-family: 'Hanken Grotesk', system-ui, sans-serif;
+      font-size: 16px; color: rgba(249,245,240,0.45);
+      line-height: 1.75; max-width: 560px;
+      margin: 0 auto 40px;
+    }
+    .tasting-cta__btn {
+      display: inline-flex; align-items: center; gap: 12px;
+      font-family: 'Hanken Grotesk', system-ui, sans-serif;
+      font-size: 12px; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: #F9F5F0;
+      border: 1px solid rgba(197,160,89,0.4);
+      padding: 16px 36px; border-radius: 100px;
+      text-decoration: none;
+      transition: border-color 0.25s ease, background 0.25s ease;
+    }
+    .tasting-cta__btn:hover {
+      border-color: #C5A059;
+      background: rgba(197,160,89,0.08);
+    }
+
+    /* ── Footer ───────────────────────────────────────────────── */
+    .menu-footer {
+      padding: 64px 48px;
+      background: #080808;
+      border-top: 1px solid rgba(197,160,89,0.08);
+    }
+    .menu-footer__inner {
+      max-width: 1280px; margin: 0 auto;
+      display: flex; flex-direction: column; align-items: center; gap: 32px;
+    }
+    .menu-footer__logo {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 24px; font-style: italic;
+      color: rgba(249,245,240,0.7);
+    }
+    .menu-footer__nav {
+      display: flex; gap: 32px;
+      flex-wrap: wrap; justify-content: center;
+    }
+    .menu-footer__nav a {
+      font-family: 'Hanken Grotesk', system-ui, sans-serif;
+      font-size: 12px; font-weight: 500;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: rgba(249,245,240,0.35);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+    .menu-footer__nav a:hover { color: rgba(249,245,240,0.7); }
+    .menu-footer__social {
+      display: flex; gap: 20px;
+    }
+    .menu-footer__social a {
+      width: 36px; height: 36px;
+      border: 1px solid rgba(197,160,89,0.2);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; color: rgba(249,245,240,0.4);
+      text-decoration: none;
+      transition: border-color 0.2s ease, color 0.2s ease;
+    }
+    .menu-footer__social a:hover {
+      border-color: rgba(197,160,89,0.5);
+      color: #C5A059;
+    }
+    .menu-footer__copy {
+      font-family: 'Hanken Grotesk', system-ui, sans-serif;
+      font-size: 12px; color: rgba(249,245,240,0.2);
+      letter-spacing: 0.05em;
+    }
+
+    /* ── GSAP initial states ──────────────────────────────────── */
+    .g-fade-up   { opacity: 0; transform: translateY(28px); will-change: transform, opacity; }
+    .g-fade-left { opacity: 0; transform: translateX(-28px); will-change: transform, opacity; }
+    .g-fade-right{ opacity: 0; transform: translateX(28px); will-change: transform, opacity; }
+    .g-scale     { opacity: 0; transform: scale(0.96); will-change: transform, opacity; }
+
+    /* ── Responsive ───────────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .uni-nav__inner { padding: 12px 24px; }
+      .menu-hero__content { padding: 0 24px 80px; }
+      .menu-section { padding: 72px 24px; }
+      .items-grid { grid-template-columns: 1fr; }
+      .plats-layout { grid-template-columns: 1fr; }
+      .plats-side { display: none; }
+      .signature-inner { grid-template-columns: 1fr; }
+      .signature-image-wrap { display: none; }
+      .desserts-grid { grid-template-columns: 1fr; }
+      .tasting-cta { padding: 72px 24px; }
+      .menu-footer { padding: 48px 24px; }
+    }
+  </style>
+</head>
+<body class="theme-creole">
+
+  <!-- ── Navigation ─────────────────────────────────────────── -->
+  <header class="uni-nav" id="uniNav">
+    <div class="uni-nav__inner">
+      <a href="index.html" class="uni-nav__logo">Oli's Passion</a>
+      <nav class="uni-nav__links" aria-label="Navigation principale">
+        <a href="menu.html" class="active">Menu</a>
+        <a href="cocktails.html">Cocktails</a>
+        <a href="vin.html">Cave</a>
+        <a href="dashboard/index.html">Manager</a>
+      </nav>
+      <button class="uni-nav__btn" onclick="window.location.href='index.html#reservation'">RÉSERVER</button>
+    </div>
+  </header>
+
+  <!-- ── Hero ───────────────────────────────────────────────── -->
+  <section class="menu-hero" aria-label="En-tête menu">
+    <div class="menu-hero__bg">
+      <img src="https://images.unsplash.com/photo-1771532447024-ee348a315f41?auto=format&fit=crop&w=1920&q=80"
+           alt="" aria-hidden="true" fetchpriority="high">
+    </div>
+    <div class="menu-hero__vignette"></div>
+    <div class="menu-hero__veil" id="menuHeroVeil" aria-hidden="true"></div>
+    <div class="menu-hero__content">
+      <p class="menu-hero__label" id="heroLabel">Cuisine créole de précision</p>
+      <h1 class="menu-hero__title" id="heroTitle">La Carte Éphémère</h1>
+      <p class="menu-hero__quote" id="heroQuote">
+        « Une sélection évolutive, ancrée dans le calendrier de l'île et les arrivages du marché de Saint-Denis. »
+      </p>
+    </div>
+    <div class="menu-hero__scroll" id="heroScroll" aria-hidden="true">
+      <span class="menu-hero__scroll-line"></span>
+      Découvrir
+    </div>
+  </section>
+
+  <!-- ── Les Entrées ────────────────────────────────────────── -->
+  <section class="menu-section" id="entrees" aria-labelledby="entrees-title">
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:48px; align-items:end; margin-bottom:56px;">
+      <div>
+        <p class="section-label g-fade-up">Mise en bouche</p>
+        <h2 class="section-title g-fade-up" id="entrees-title">Les Entrées</h2>
+        <div class="section-divider g-fade-up"></div>
+      </div>
+      <p class="section-desc g-fade-right">
+        Nos entrées explorent la mer et les hauteurs de l'île. Légères, acidulées, ancrées dans le terroir réunionnais — chaque bouchée annonce la traversée à venir.
+      </p>
+    </div>
+
+    <div class="photo-banner g-scale" aria-hidden="true">
+      <img class="photo-banner__inner"
+           src="https://images.unsplash.com/photo-1599600657272-a747c46ebf9a?auto=format&fit=crop&w=1280&h=400&q=85"
+           alt="Entrées de la mer" loading="lazy">
+      <div class="photo-banner__overlay"></div>
+    </div>
+
+    <div class="items-grid" role="list">
+      <article class="menu-item g-fade-up" role="listitem">
+        <h3 class="menu-item__name">Carpaccio de Sériole</h3>
+        <p class="menu-item__desc">
+          Translucide comme l'eau de Cilaos, finement tranché et nappé d'une vinaigrette vive aux agrumes volcaniques. Baies roses sauvages de la forêt de Mourouvin, fleur de sel et herbes du jardin créole.
+        </p>
+        <div class="menu-item__footer">
+          <div class="menu-item__tags">
+            <span class="menu-item__tag">SG</span>
+            <span class="menu-item__tag">SL</span>
+          </div>
+          <span class="menu-item__price">24 €</span>
+        </div>
+      </article>
+
+      <article class="menu-item g-fade-up" role="listitem">
+        <h3 class="menu-item__name">Foie Gras Poêlé</h3>
+        <p class="menu-item__desc">
+          Foie gras doré à la perfection, posé sur une réduction veloutée de letchis parfumée au laurier bourbon. Pain d'épices artisanal au miel de forêt, cristaux ambrés de sucre de canne.
+        </p>
+        <div class="menu-item__footer">
+          <div class="menu-item__tags"></div>
+          <span class="menu-item__price">28 €</span>
+        </div>
+      </article>
+
+      <article class="menu-item g-fade-up" role="listitem">
+        <h3 class="menu-item__name">Velouté de Camaron</h3>
+        <p class="menu-item__desc">
+          Bisque onctueuse de camarons des hauts, coiffée d'une émulsion aérienne coco-citronnelle. Éclats de gingembre frais torréfié et fil d'huile d'herbes sauvages.
+        </p>
+        <div class="menu-item__footer">
+          <div class="menu-item__tags">
+            <span class="menu-item__tag">SG</span>
+          </div>
+          <span class="menu-item__price">22 €</span>
+        </div>
+      </article>
+
+      <article class="menu-item g-fade-up" role="listitem">
+        <h3 class="menu-item__name">Cromesquis de Boudin</h3>
+        <p class="menu-item__desc">
+          Cœur fondant de boudin créole épicé dans sa croûte dorée au panko. Chutney vif de mangue verte pimentée, jeunes pousses de mouroum.
+        </p>
+        <div class="menu-item__footer">
+          <div class="menu-item__tags"></div>
+          <span class="menu-item__price">19 €</span>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ── Plats de Résistance ────────────────────────────────── -->
+  <section class="menu-section" id="plats" aria-labelledby="plats-title">
+    <div style="margin-bottom:56px;">
+      <p class="section-label g-fade-up">Corps du repas</p>
+      <h2 class="section-title g-fade-up" id="plats-title">Plats de Résistance</h2>
+      <div class="section-divider g-fade-up"></div>
+      <p class="section-desc g-fade-up" style="margin-top:0;">
+        Cuissons longues, produits nobles. Chaque plat est le résultat d'une maturation — des heures de travail invisibles qui se révèlent en une bouchée.
+      </p>
+    </div>
+
+    <div class="plats-layout">
+      <div class="plats-list">
+        <article class="plat-item g-fade-up">
+          <div class="plat-item__header">
+            <h3 class="plat-item__name">Canard <em>à la Fournaise</em></h3>
+            <span class="plat-item__price">42 €</span>
+          </div>
+          <p class="plat-item__desc">
+            Magret confit aux épices des îles — curcuma, girofle, cannelle de Bourbon — rôti à la flamme vive. Mousseline soyeuse de patate douce violette, jus réduit au Ti Punch vieux.
+          </p>
+        </article>
+        <article class="plat-item g-fade-up">
+          <div class="plat-item__header">
+            <h3 class="plat-item__name">Légine <em>de Grand Fond</em></h3>
+            <span class="plat-item__price">48 €</span>
+          </div>
+          <p class="plat-item__desc">
+            Chair nacrée et délicate de légine des abysses, servie sur un bouillon profond de brèdes chouchou. Filet d'huile de vanille bleue de Saint-Philippe, sel marin en cristaux.
+          </p>
+        </article>
+      </div>
+      <div class="plats-side">
+        <div class="photo-banner photo-banner--sm g-scale" style="height:340px; border-radius:4px;" aria-hidden="true">
+          <img class="photo-banner__inner"
+               src="https://images.unsplash.com/photo-1614926994586-d0a318165f26?auto=format&fit=crop&w=640&h=700&q=85"
+               alt="Plats de résistance" loading="lazy">
+          <div class="photo-banner__overlay"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Signature ──────────────────────────────────────────── -->
+  <div class="signature-section" role="region" aria-labelledby="signature-title">
+    <div class="signature-inner">
+      <div class="g-fade-left">
+        <span class="signature-badge">★ Pièce Signature</span>
+        <h2 class="signature-title" id="signature-title">Langouste Rôtie</h2>
+        <p class="signature-subtitle">au beurre de vanille Bourbon</p>
+        <div class="section-divider" style="margin-bottom:28px;"></div>
+        <p class="signature-desc">
+          Langouste vivante des eaux de La Réunion, rôtie entière au beurre de vanille Bourbon infusé 48h. Risotto crémeux au beurre de homard, laurier-sauce des jardins créoles. Une pièce à commander dès votre arrivée — servie en deux temps, vivante puis dorée.
+        </p>
+        <div class="signature-price">
+          75 €<span>/ personne</span>
+        </div>
+      </div>
+      <div class="signature-image-wrap g-fade-right" aria-hidden="true">
+        <div class="signature-image-ring signature-image__ring"></div>
+        <div class="signature-image">
+          <div class="signature-image__inner">
+            <img src="https://images.unsplash.com/photo-1655697253644-63c270874bb7?auto=format&fit=crop&w=680&h=680&q=85"
+                 alt="Langouste rôtie au beurre de vanille Bourbon" loading="lazy">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Douceurs de l'Île ──────────────────────────────────── -->
+  <section class="menu-section" id="desserts" aria-labelledby="desserts-title">
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:48px; align-items:end; margin-bottom:56px;">
+      <div>
+        <p class="section-label g-fade-up">La clôture</p>
+        <h2 class="section-title g-fade-up" id="desserts-title">Douceurs de l'Île</h2>
+        <div class="section-divider g-fade-up"></div>
+      </div>
+      <p class="section-desc g-fade-right">
+        Nos desserts jouent sur la mémoire olfactive de l'île — vanille, fruits de la passion, cacao grand cru — revisités avec légèreté et précision pâtissière.
+      </p>
+    </div>
+
+    <div class="photo-banner g-scale" style="margin-bottom:48px;" aria-hidden="true">
+      <img class="photo-banner__inner"
+           src="https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=1280&h=400&q=85"
+           alt="Douceurs de l'île" loading="lazy">
+      <div class="photo-banner__overlay"></div>
+    </div>
+
+    <div class="desserts-grid" role="list">
+      <article class="dessert-card g-fade-up" role="listitem">
+        <h3 class="dessert-card__name">Perle de Vanille</h3>
+        <p class="dessert-card__desc">
+          Mousse vaporeuse à la vanille Givrée de Bourbon, cœur coulant au caramel beurre salé fumé. Streusel croustillant, poudre de cacao d'exception.
+        </p>
+        <span class="dessert-card__price">16 €</span>
+      </article>
+
+      <article class="dessert-card g-fade-up" role="listitem">
+        <h3 class="dessert-card__name">Ananas Victoria</h3>
+        <p class="dessert-card__desc">
+          Cœur d'ananas Victoria caramélisé au sucre de canne muscovado et vieux rhum agricole. Sorbet coco artisanal battu à la main, tuile de coco grillée.
+        </p>
+        <span class="dessert-card__price">14 €</span>
+      </article>
+
+      <article class="dessert-card g-fade-up" role="listitem">
+        <h3 class="dessert-card__name">Noir de l'Île</h3>
+        <p class="dessert-card__desc">
+          Croustillant intense au chocolat grand cru 70% de Madagascar, relevé d'une fine pointe de piment oiseau réunionnais. Éclat de sel de l'Océan Indien, feuille d'or.
+        </p>
+        <span class="dessert-card__price">18 €</span>
+      </article>
+    </div>
+  </section>
+
+  <!-- ── Tasting CTA ────────────────────────────────────────── -->
+  <div class="tasting-cta" id="degustation" role="region" aria-labelledby="degustation-title">
+    <p class="tasting-cta__label g-fade-up">L'expérience totale</p>
+    <h2 class="tasting-cta__title g-fade-up" id="degustation-title">Menu Dégustation</h2>
+    <div class="tasting-cta__price g-fade-up">145 €</div>
+    <p class="tasting-cta__price-note g-fade-up">par personne · accords mets-vins +65 €</p>
+    <p class="tasting-cta__desc g-fade-up">
+      7 services, 3h30 d'exception. Du pain maison aux mignardises, une traversée complète du terroir de La Réunion par le Chef Alistair Oli.
+    </p>
+    <a href="index.html#reservation" class="tasting-cta__btn g-fade-up">
+      Réserver le menu dégustation
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+
+  <!-- ── Footer ─────────────────────────────────────────────── -->
+  <footer class="menu-footer" role="contentinfo">
+    <div class="menu-footer__inner">
+      <div class="menu-footer__logo">Oli's Passion</div>
+      <nav class="menu-footer__nav" aria-label="Navigation footer">
+        <a href="index.html">Accueil</a>
+        <a href="menu.html">Menu</a>
+        <a href="cocktails.html">Cocktails</a>
+        <a href="vin.html">Cave</a>
+        <a href="index.html#reservation">Réservations</a>
+      </nav>
+      <div class="menu-footer__social" aria-label="Réseaux sociaux">
+        <a href="#" aria-label="Instagram">IG</a>
+        <a href="#" aria-label="Facebook">FB</a>
+        <a href="#" aria-label="TripAdvisor">TA</a>
+      </div>
+      <p class="menu-footer__copy">© 2026 Oli's Passion · Saint-Denis, La Réunion · Conçu par Aikiro Lab</p>
+    </div>
+  </footer>
+
+  <!-- ── Scripts ────────────────────────────────────────────── -->
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1/dist/lenis.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/ScrollTrigger.min.js"></script>
+  <script>
+    /* ── Lenis smooth scroll ──────────────────────────────── */
+    const lenis = new Lenis({ lerp: 0.08, smoothWheel: true });
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add((time) => lenis.raf(time * 1000));
+    gsap.ticker.lagSmoothing(0);
+
+    /* ── GSAP + ScrollTrigger register ───────────────────── */
+    gsap.registerPlugin(ScrollTrigger);
+
+    /* ── Hero entrance ────────────────────────────────────── */
+    const heroTl = gsap.timeline({ delay: 0.3 });
+    heroTl
+      .to('#heroLabel',  { opacity: 1, x: 0, duration: 0.9, ease: 'power3.out' })
+      .to('#heroTitle',  { opacity: 1, x: 0, duration: 1.0, ease: 'power3.out' }, '-=0.6')
+      .to('#heroQuote',  { opacity: 1, x: 0, duration: 0.9, ease: 'power3.out' }, '-=0.6')
+      .to('#heroScroll', { opacity: 1, duration: 0.6, ease: 'power2.out' }, '-=0.3');
+
+    /* ── Scroll reveals ──────────────────────────────────── */
+    function reveal(selector, vars, triggerEl) {
+      const els = document.querySelectorAll(selector);
+      if (!els.length) return;
+      els.forEach((el) => {
+        gsap.to(el, {
+          ...vars,
+          scrollTrigger: {
+            trigger: triggerEl || el,
+            start: 'top 88%',
+            toggleActions: 'play none none none',
+          },
+        });
+      });
+    }
+
+    /* fade-up elements — staggered per section */
+    document.querySelectorAll('section, .signature-section, .tasting-cta').forEach((section) => {
+      const items = section.querySelectorAll('.g-fade-up');
+      if (!items.length) return;
+      gsap.to(items, {
+        opacity: 1, y: 0, duration: 0.75,
+        ease: 'power3.out',
+        stagger: 0.12,
+        scrollTrigger: {
+          trigger: section,
+          start: 'top 85%',
+          toggleActions: 'play none none none',
+        },
+      });
+    });
+
+    /* fade-left / fade-right */
+    document.querySelectorAll('.g-fade-left').forEach((el) => {
+      gsap.to(el, {
+        opacity: 1, x: 0, duration: 0.9,
+        ease: 'power3.out',
+        scrollTrigger: { trigger: el, start: 'top 85%', toggleActions: 'play none none none' },
+      });
+    });
+    document.querySelectorAll('.g-fade-right').forEach((el) => {
+      gsap.to(el, {
+        opacity: 1, x: 0, duration: 0.9,
+        ease: 'power3.out',
+        scrollTrigger: { trigger: el, start: 'top 85%', toggleActions: 'play none none none' },
+      });
+    });
+
+    /* scale banners */
+    document.querySelectorAll('.g-scale').forEach((el) => {
+      gsap.to(el, {
+        opacity: 1, scale: 1, duration: 1.1,
+        ease: 'power2.out',
+        scrollTrigger: { trigger: el, start: 'top 90%', toggleActions: 'play none none none' },
+      });
+    });
+
+    /* ── Header scroll state ─────────────────────────────── */
+    const header = document.getElementById('uniNav');
+    ScrollTrigger.create({
+      start: 'top -60',
+      onUpdate: (self) => header.classList.toggle('scrolled', self.scroll() > 60),
+    });
+
+    /* ── Hero veil — scroll darkening ────────────────────── */
+    gsap.to('#menuHeroVeil', {
+      opacity: 0.58,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: '.menu-hero',
+        start: 'top top',
+        end: '85% top',
+        scrub: true,
+      },
+    });
+  </script>
+</body>
+</html>
