@@ -133,11 +133,53 @@
     <a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors duration-300" href="vin.html">Cave</a>
     <a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors duration-300" href="dashboard/index.html">Manager</a>
   </nav>
-  <button
-    class="bg-primary-container text-on-primary-container px-6 py-2 font-label-md text-label-md uppercase tracking-widest hover:opacity-80 transition-all duration-300"
-    onclick="document.getElementById('reservation').scrollIntoView({behavior:'smooth'})"
-  >Réserver</button>
+  <div class="flex items-center gap-4">
+    <button
+      class="bg-primary-container text-on-primary-container px-6 py-2 font-label-md text-label-md uppercase tracking-widest hover:opacity-80 transition-all duration-300 hidden md:block"
+      onclick="document.getElementById('reservation').scrollIntoView({behavior:'smooth'})"
+    >Réserver</button>
+    <!-- Burger mobile -->
+    <button id="burgerBtn" class="md:hidden flex flex-col gap-1.5 p-2" onclick="toggleMobileNav()">
+      <span class="w-6 h-[1px] bg-on-surface block"></span>
+      <span class="w-6 h-[1px] bg-on-surface block"></span>
+      <span class="w-6 h-[1px] bg-on-surface block"></span>
+    </button>
+  </div>
 </header>
+
+<!-- Mobile nav drawer -->
+<div id="mobileNav" class="fixed inset-0 z-40 pointer-events-none">
+  <div id="mobileOverlay" onclick="toggleMobileNav()" class="absolute inset-0 bg-black/70 opacity-0 transition-opacity duration-300"></div>
+  <div id="mobilePanel" class="absolute top-0 right-0 h-full w-72 bg-surface border-l border-outline-variant/20 translate-x-full transition-transform duration-300 flex flex-col pt-20 px-8 gap-8">
+    <a class="font-label-md text-label-md text-primary border-b border-primary pb-1 uppercase tracking-widest" href="menu.html">Menu</a>
+    <a class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest" href="cocktails.html">Cocktails</a>
+    <a class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest" href="vin.html">Cave</a>
+    <a class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest" href="dashboard/index.html">Manager</a>
+    <button
+      class="mt-4 bg-primary-container text-on-primary-container px-6 py-3 font-label-md text-label-md uppercase tracking-widest"
+      onclick="document.getElementById('reservation').scrollIntoView({behavior:'smooth'}); toggleMobileNav()"
+    >Réserver</button>
+  </div>
+</div>
+<script>
+function toggleMobileNav() {
+  const nav = document.getElementById('mobileNav');
+  const panel = document.getElementById('mobilePanel');
+  const overlay = document.getElementById('mobileOverlay');
+  const isOpen = !panel.classList.contains('translate-x-full');
+  if (isOpen) {
+    panel.classList.add('translate-x-full');
+    overlay.classList.remove('opacity-100');
+    overlay.classList.add('opacity-0');
+    setTimeout(() => nav.classList.add('pointer-events-none'), 300);
+  } else {
+    nav.classList.remove('pointer-events-none');
+    overlay.classList.remove('opacity-0');
+    overlay.classList.add('opacity-100');
+    panel.classList.remove('translate-x-full');
+  }
+}
+</script>
 
 <main class="pt-32">
 
@@ -201,7 +243,7 @@
         </div>
 
         <!-- Overlay texte animé (bas-gauche) -->
-        <div style="position:absolute; bottom:0; left:0; pointer-events:none; padding:0 3rem 4rem;">
+        <div style="position:absolute; bottom:0; left:0; pointer-events:none; padding:0 3rem 4rem;" class="hidden md:block">
           <div id="canvasText">
             <div style="width:2rem; height:1px; background:#ffb77b; margin-bottom:1rem;"></div>
             <h3 class="font-display-lg text-headline-lg text-on-surface italic" style="margin-bottom:1rem; max-width:500px;">
@@ -267,7 +309,7 @@
             <img
               alt="L'Écrin d'Oli — Intérieur du restaurant"
               class="w-full h-auto brightness-90 hover:brightness-100 transition-all duration-700 copper-glow border border-outline-variant/30"
-              src="https://lh3.googleusercontent.com/aida/ADBb0uiQCeJRDGXl1zNL_n97FZlPi0UbfPb7EEmeQocH6LiZEv2b7y3QtTDKqmHxQfhYiBgBRzhx_trvTwItgdrlYdxgOw3VTJCPwh1DZWMQoFoLy07_hnwOwW3rKF50RCNjxQFbrT_FygDB5b_RJrwjQqZady3BH5P_kMsMjnlbxL1nUP-65WqLO6rnl4-9M7Bb826VkSZFa5nJyzQC6fpmGUbDokxzxJ4z0s3ecSKeyAfLeU4GLTydkEr64zyjCAlMv2f4mW2DmIW43w"
+              src="images/Salle de restaurant.png"
             />
             <div class="absolute -top-4 -left-4 w-24 h-24 border-t-2 border-l-2 border-primary/40 hidden md:block"></div>
             <div class="absolute -bottom-4 -right-4 w-24 h-24 border-b-2 border-r-2 border-primary/40 hidden md:block"></div>

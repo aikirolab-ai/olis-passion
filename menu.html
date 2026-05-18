@@ -564,7 +564,7 @@
   <!-- ── Hero ───────────────────────────────────────────────── -->
   <section class="menu-hero" aria-label="En-tête menu">
     <div class="menu-hero__bg">
-      <img src="https://images.unsplash.com/photo-1771532447024-ee348a315f41?auto=format&fit=crop&w=1920&q=80"
+      <img src="images/Tartaredecamarons.png"
            alt="" aria-hidden="true" fetchpriority="high">
     </div>
     <div class="menu-hero__vignette"></div>
@@ -596,9 +596,19 @@
     </div>
 
     <div class="photo-banner g-scale" aria-hidden="true">
-      <img class="photo-banner__inner"
-           src="https://images.unsplash.com/photo-1599600657272-a747c46ebf9a?auto=format&fit=crop&w=1280&h=400&q=85"
+      <!-- Desktop : image fixe -->
+      <img class="photo-banner__inner hidden md:block"
+           src="images/Entree.png"
            alt="Entrées de la mer" loading="lazy">
+      <!-- Mobile : slideshow -->
+      <div class="md:hidden w-full relative overflow-hidden" style="height:260px;" id="slideEntrees">
+        <div class="slide-track flex h-full transition-transform duration-500" style="width:200%">
+          <img src="images/Entree.png" alt="Entrée" class="w-1/2 h-full object-cover flex-shrink-0">
+          <img src="images/Plat 1.png" alt="Plat" class="w-1/2 h-full object-cover flex-shrink-0">
+        </div>
+        <button onclick="slideLeft('slideEntrees')" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/40 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm">‹</button>
+        <button onclick="slideRight('slideEntrees')" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/40 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm">›</button>
+      </div>
       <div class="photo-banner__overlay"></div>
     </div>
 
@@ -688,9 +698,20 @@
       </div>
       <div class="plats-side">
         <div class="photo-banner photo-banner--sm g-scale" style="height:340px; border-radius:4px;" aria-hidden="true">
-          <img class="photo-banner__inner"
-               src="https://images.unsplash.com/photo-1614926994586-d0a318165f26?auto=format&fit=crop&w=640&h=700&q=85"
+          <!-- Desktop -->
+          <img class="photo-banner__inner hidden md:block"
+               style="object-fit:contain; background:#0a0a0a;"
+               src="images/Plat 1.png"
                alt="Plats de résistance" loading="lazy">
+          <!-- Mobile slideshow -->
+          <div class="md:hidden w-full relative overflow-hidden" style="height:260px;" id="slidePlats">
+            <div class="slide-track flex h-full transition-transform duration-500" style="width:200%">
+              <img src="images/Plat 1.png" alt="Plat" class="w-1/2 h-full object-cover flex-shrink-0">
+              <img src="images/Dessert.png" alt="Dessert" class="w-1/2 h-full object-cover flex-shrink-0">
+            </div>
+            <button onclick="slideLeft('slidePlats')" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/40 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm">‹</button>
+            <button onclick="slideRight('slidePlats')" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/40 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm">›</button>
+          </div>
           <div class="photo-banner__overlay"></div>
         </div>
       </div>
@@ -739,7 +760,7 @@
 
     <div class="photo-banner g-scale" style="margin-bottom:48px;" aria-hidden="true">
       <img class="photo-banner__inner"
-           src="https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=1280&h=400&q=85"
+           src="images/Dessert.png"
            alt="Douceurs de l'île" loading="lazy">
       <div class="photo-banner__overlay"></div>
     </div>
@@ -904,5 +925,28 @@
       },
     });
   </script>
+<script>
+// Slideshow mobile simple
+const slideState = {};
+function slideLeft(id) {
+  if (!slideState[id]) slideState[id] = 0;
+  slideState[id] = Math.max(0, slideState[id] - 1);
+  applySlide(id);
+}
+function slideRight(id) {
+  if (!slideState[id] === undefined) slideState[id] = 0;
+  const track = document.querySelector('#' + id + ' .slide-track');
+  const total = track ? track.children.length : 2;
+  slideState[id] = (slideState[id] || 0) + 1;
+  if (slideState[id] >= total) slideState[id] = total - 1;
+  applySlide(id);
+}
+function applySlide(id) {
+  const track = document.querySelector('#' + id + ' .slide-track');
+  if (!track) return;
+  const w = 100 / track.children.length;
+  track.style.transform = 'translateX(-' + (slideState[id] * w) + '%)';
+}
+</script>
 </body>
 </html>
