@@ -345,7 +345,11 @@ function toggleMobileNav() {
       <form id="resaForm" class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10 text-left border border-outline-variant/20 p-8 md:p-12 bg-surface-container-lowest/50 backdrop-blur-sm inner-highlight">
         <div class="relative">
           <label class="font-label-md text-[10px] text-on-surface-variant/70 uppercase mb-2 block" for="name">Nom complet</label>
-          <input class="w-full bg-transparent border-b border-outline-variant focus:border-primary focus:ring-0 text-on-surface py-2 outline-none placeholder:text-surface-variant font-body-md" id="name" placeholder="Jean Dupont" type="text"/>
+          <input class="w-full bg-transparent border-b border-outline-variant focus:border-primary focus:ring-0 text-on-surface py-2 outline-none placeholder:text-surface-variant font-body-md" id="name" placeholder="Jean Dupont" type="text" required/>
+        </div>
+        <div class="relative">
+          <label class="font-label-md text-[10px] text-on-surface-variant/70 uppercase mb-2 block" for="phone">Téléphone</label>
+          <input class="w-full bg-transparent border-b border-outline-variant focus:border-primary focus:ring-0 text-on-surface py-2 outline-none placeholder:text-surface-variant font-body-md" id="phone" placeholder="+262 692 12 34 56" type="tel" required/>
         </div>
         <div class="relative">
           <label class="font-label-md text-[10px] text-on-surface-variant/70 uppercase mb-2 block" for="email">Adresse e-mail</label>
@@ -354,8 +358,34 @@ function toggleMobileNav() {
         <div class="relative">
           <label class="font-label-md text-[10px] text-on-surface-variant/70 uppercase mb-2 block" for="resa-date">Date souhaitée</label>
           <div class="flex items-center border-b border-outline-variant">
-            <input class="w-full bg-transparent border-0 focus:ring-0 text-on-surface py-2 outline-none font-body-md" id="resa-date" type="date"/>
+            <input class="w-full bg-transparent border-0 focus:ring-0 text-on-surface py-2 outline-none font-body-md" id="resa-date" type="date" required/>
             <span class="material-symbols-outlined text-surface-variant text-xl">calendar_today</span>
+          </div>
+        </div>
+        <div class="relative">
+          <label class="font-label-md text-[10px] text-on-surface-variant/70 uppercase mb-2 block" for="resa-time">Heure</label>
+          <div class="flex items-center border-b border-outline-variant">
+            <select class="w-full bg-transparent border-0 focus:ring-0 text-on-surface py-2 outline-none appearance-none font-body-md" id="resa-time" required>
+              <option class="bg-surface text-on-surface" value="" selected disabled>Choisir un créneau</option>
+              <optgroup label="Midi" class="bg-surface text-on-surface">
+                <option class="bg-surface text-on-surface" value="12:00">12:00</option>
+                <option class="bg-surface text-on-surface" value="12:15">12:15</option>
+                <option class="bg-surface text-on-surface" value="12:30">12:30</option>
+                <option class="bg-surface text-on-surface" value="12:45">12:45</option>
+                <option class="bg-surface text-on-surface" value="13:00">13:00</option>
+                <option class="bg-surface text-on-surface" value="13:30">13:30</option>
+              </optgroup>
+              <optgroup label="Soir" class="bg-surface text-on-surface">
+                <option class="bg-surface text-on-surface" value="19:00">19:00</option>
+                <option class="bg-surface text-on-surface" value="19:15">19:15</option>
+                <option class="bg-surface text-on-surface" value="19:30">19:30</option>
+                <option class="bg-surface text-on-surface" value="19:45">19:45</option>
+                <option class="bg-surface text-on-surface" value="20:00">20:00</option>
+                <option class="bg-surface text-on-surface" value="20:30">20:30</option>
+                <option class="bg-surface text-on-surface" value="21:00">21:00</option>
+              </optgroup>
+            </select>
+            <span class="material-symbols-outlined text-surface-variant text-xl pointer-events-none">schedule</span>
           </div>
         </div>
         <div class="relative">
@@ -366,7 +396,9 @@ function toggleMobileNav() {
               <option class="bg-surface text-on-surface" selected value="2">2 personnes</option>
               <option class="bg-surface text-on-surface" value="3">3 personnes</option>
               <option class="bg-surface text-on-surface" value="4">4 personnes</option>
-              <option class="bg-surface text-on-surface" value="5">5+ personnes</option>
+              <option class="bg-surface text-on-surface" value="5">5 personnes</option>
+              <option class="bg-surface text-on-surface" value="6">6 personnes</option>
+              <option class="bg-surface text-on-surface" value="7">7 personnes</option>
             </select>
             <span class="material-symbols-outlined text-surface-variant text-xl pointer-events-none">expand_more</span>
           </div>
@@ -558,20 +590,71 @@ function toggleMobileNav() {
     });
   });
 
-  /* ── Reservation form ─────────────────────────────────── */
-  document.getElementById('resaForm').addEventListener('submit', function (e) {
-    e.preventDefault();
-    const fb  = document.getElementById('resaFeedback');
-    const btn = this.querySelector('button[type=submit]');
-    btn.textContent = 'Envoi en cours…';
-    btn.disabled = true;
-    setTimeout(() => {
-      fb.textContent = '✓ Demande reçue — confirmation par e-mail sous 24h.';
-      fb.classList.remove('hidden');
-      btn.textContent = 'Demande envoyée';
-    }, 1200);
-  });
+  /* ── Reservation form : géré par le script Supabase plus bas (envoi réel vers MiamOS) ── */
 
+})();
+</script>
+
+<!-- ── Réservation en ligne → MiamOS (Supabase) ───────────────── -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+  const SB = supabase.createClient(
+    'https://zoeyrcfyyhrcausvywxr.supabase.co',
+    'sb_publishable_uysZiFJa_RMwfs8C4Deq4w_GXLZhzI4'
+  );
+  const RESTAURANT_ID = 12; // Oli's Passion
+  const form = document.getElementById('resaForm');
+  const fb   = document.getElementById('resaFeedback');
+  if(!form) return;
+
+  // Date minimum = aujourd'hui
+  const dateEl = document.getElementById('resa-date');
+  if(dateEl){ dateEl.min = new Date().toISOString().split('T')[0]; }
+
+  function show(msg, ok){
+    fb.textContent = msg;
+    fb.classList.remove('hidden');
+    fb.style.border = '1px solid ' + (ok ? 'rgba(76,175,80,0.4)' : 'rgba(229,115,115,0.5)');
+    fb.style.background = ok ? 'rgba(76,175,80,0.08)' : 'rgba(229,115,115,0.10)';
+    fb.style.color = ok ? '#81c784' : '#e57373';
+  }
+
+  form.addEventListener('submit', async function(e){
+    e.preventDefault();
+    const name  = (document.getElementById('name').value  || '').trim();
+    const phone = (document.getElementById('phone').value || '').trim();
+    const email = (document.getElementById('email').value || '').trim();
+    const date  = document.getElementById('resa-date').value;
+    const time  = document.getElementById('resa-time').value;
+    const party = parseInt(document.getElementById('guests').value, 10) || 2;
+
+    if(!name || !phone || !date || !time){
+      show('Merci de renseigner nom, téléphone, date et heure.', false);
+      return;
+    }
+
+    const btn = form.querySelector('button[type="submit"]');
+    const label = btn.textContent;
+    btn.disabled = true; btn.textContent = 'Envoi en cours…';
+
+    const { error } = await SB.rpc('create_site_reservation', {
+      p_restaurant_id: RESTAURANT_ID,
+      p_name: name, p_phone: phone, p_email: email,
+      p_date: date, p_time: time, p_party: party, p_note: null
+    });
+
+    btn.disabled = false; btn.textContent = label;
+
+    if(error){
+      console.error('create_site_reservation:', error);
+      show('La réservation n\'a pas pu être envoyée. Réessayez ou appelez-nous.', false);
+      return;
+    }
+    form.reset();
+    if(dateEl){ dateEl.min = new Date().toISOString().split('T')[0]; }
+    show('Merci ! Votre demande de réservation a bien été envoyée. Le restaurant vous confirmera très vite.', true);
+  });
 })();
 </script>
 </body>
