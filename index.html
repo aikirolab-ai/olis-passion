@@ -124,6 +124,11 @@
 </head>
 <body class="font-body-md text-body-md antialiased overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container">
 
+<!-- Bandeau démo -->
+<div style="background:#B87333;color:#1c140c;text-align:center;font-size:12px;line-height:1.45;letter-spacing:.02em;padding:8px 14px;font-family:system-ui,-apple-system,sans-serif;font-weight:600;">
+  Démonstration MiamOS · « Oli's Passion » est un restaurant fictif. Les réservations ci-dessous sont réelles et gérées par MiamOS.
+</div>
+
 <!-- ── Top Navigation Bar ──────────────────────────────────── -->
 <header class="fixed top-0 w-full z-50 flex justify-between items-center px-gutter py-4 max-w-container-max mx-auto bg-surface">
   <div class="font-headline-md" style="font-size:22px; font-style:italic; background:linear-gradient(120deg,#B87333 0%,#C5A059 40%,#ddd0b0 75%,#F9F5F0 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">Oli's Passion</div>
@@ -341,8 +346,13 @@ function toggleMobileNav() {
     <div class="max-w-4xl mx-auto px-gutter text-center">
       <span class="font-label-md text-label-md text-primary tracking-widest uppercase mb-4 block">Réservations</span>
       <h2 class="font-display-lg text-headline-lg text-on-surface mb-4">Réservez votre table</h2>
-      <p class="font-label-md text-label-md text-on-surface-variant/60 uppercase tracking-[0.2em] mb-12">Places limitées disponibles</p>
+      <p class="font-label-md text-label-md text-on-surface-variant/60 uppercase tracking-[0.2em] mb-4">Places limitées disponibles</p>
+      <p class="font-label-md text-[11px] text-primary/90 uppercase tracking-[0.15em] mb-12" style="display:inline-flex;align-items:center;gap:8px;">
+        <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:currentColor;"></span>
+        Réservation en ligne gérée par MiamOS
+      </p>
       <form id="resaForm" class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10 text-left border border-outline-variant/20 p-8 md:p-12 bg-surface-container-lowest/50 backdrop-blur-sm inner-highlight">
+        <input type="text" id="website" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0;pointer-events:none;"/>
         <div class="relative">
           <label class="font-label-md text-[10px] text-on-surface-variant/70 uppercase mb-2 block" for="name">Nom complet</label>
           <input class="w-full bg-transparent border-b border-outline-variant focus:border-primary focus:ring-0 text-on-surface py-2 outline-none placeholder:text-surface-variant font-body-md" id="name" placeholder="Jean Dupont" type="text" required/>
@@ -620,8 +630,17 @@ function toggleMobileNav() {
     fb.style.color = ok ? '#81c784' : '#e57373';
   }
 
+  let sending = false;
   form.addEventListener('submit', async function(e){
     e.preventDefault();
+    // Honeypot anti-bot : si ce champ caché est rempli, c'est un robot -> on ignore silencieusement
+    const hp = document.getElementById('website');
+    if(hp && hp.value.trim() !== ''){
+      form.reset();
+      show('Merci ! Votre demande de réservation a bien été envoyée. Le restaurant vous confirmera très vite.', true);
+      return;
+    }
+    if(sending) return;
     const name  = (document.getElementById('name').value  || '').trim();
     const phone = (document.getElementById('phone').value || '').trim();
     const email = (document.getElementById('email').value || '').trim();
@@ -636,7 +655,7 @@ function toggleMobileNav() {
 
     const btn = form.querySelector('button[type="submit"]');
     const label = btn.textContent;
-    btn.disabled = true; btn.textContent = 'Envoi en cours…';
+    sending = true; btn.disabled = true; btn.textContent = 'Envoi en cours…';
 
     const { error } = await SB.rpc('create_site_reservation', {
       p_restaurant_id: RESTAURANT_ID,
@@ -644,7 +663,7 @@ function toggleMobileNav() {
       p_date: date, p_time: time, p_party: party, p_note: null
     });
 
-    btn.disabled = false; btn.textContent = label;
+    sending = false; btn.disabled = false; btn.textContent = label;
 
     if(error){
       console.error('create_site_reservation:', error);
