@@ -141,7 +141,7 @@
   <div class="flex items-center gap-4">
     <button
       class="bg-primary-container text-on-primary-container px-6 py-2 font-label-md text-label-md uppercase tracking-widest hover:opacity-80 transition-all duration-300 hidden md:block"
-      onclick="document.getElementById('reservation').scrollIntoView({behavior:'smooth'})"
+      onclick="MiamOSBooking.open()"
     >Réserver</button>
     <!-- Burger mobile -->
     <button id="burgerBtn" class="md:hidden flex flex-col gap-1.5 p-2" onclick="toggleMobileNav()">
@@ -162,7 +162,7 @@
     <a class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest" href="dashboard/index.html">Manager</a>
     <button
       class="mt-4 bg-primary-container text-on-primary-container px-6 py-3 font-label-md text-label-md uppercase tracking-widest"
-      onclick="document.getElementById('reservation').scrollIntoView({behavior:'smooth'}); toggleMobileNav()"
+      onclick="MiamOSBooking.open(); toggleMobileNav()"
     >Réserver</button>
   </div>
 </div>
@@ -204,7 +204,7 @@ function toggleMobileNav() {
         <div class="flex gap-margin flex-wrap">
           <button
             class="bg-primary text-on-primary px-8 py-4 font-label-md text-label-md tracking-widest hover:brightness-110 transition-all"
-            onclick="document.getElementById('reservation').scrollIntoView({behavior:'smooth'})"
+            onclick="MiamOSBooking.open()"
           >RÉSERVER UNE TABLE</button>
           <a href="menu.html" class="border border-outline-variant text-on-surface px-8 py-4 font-label-md text-label-md tracking-widest hover:bg-surface-container-high transition-all">
             VOIR LE MENU
@@ -351,75 +351,12 @@ function toggleMobileNav() {
         <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:currentColor;"></span>
         Réservation en ligne gérée par MiamOS
       </p>
-      <form id="resaForm" class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10 text-left border border-outline-variant/20 p-8 md:p-12 bg-surface-container-lowest/50 backdrop-blur-sm inner-highlight">
-        <input type="text" id="website" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0;pointer-events:none;"/>
-        <div class="relative">
-          <label class="font-label-md text-[10px] text-on-surface-variant/70 uppercase mb-2 block" for="name">Nom complet</label>
-          <input class="w-full bg-transparent border-b border-outline-variant focus:border-primary focus:ring-0 text-on-surface py-2 outline-none placeholder:text-surface-variant font-body-md" id="name" placeholder="Jean Dupont" type="text" required/>
-        </div>
-        <div class="relative">
-          <label class="font-label-md text-[10px] text-on-surface-variant/70 uppercase mb-2 block" for="phone">Téléphone</label>
-          <input class="w-full bg-transparent border-b border-outline-variant focus:border-primary focus:ring-0 text-on-surface py-2 outline-none placeholder:text-surface-variant font-body-md" id="phone" placeholder="+262 692 12 34 56" type="tel" required/>
-        </div>
-        <div class="relative">
-          <label class="font-label-md text-[10px] text-on-surface-variant/70 uppercase mb-2 block" for="email">Adresse e-mail</label>
-          <input class="w-full bg-transparent border-b border-outline-variant focus:border-primary focus:ring-0 text-on-surface py-2 outline-none placeholder:text-surface-variant font-body-md" id="email" placeholder="email@domaine.fr" type="email"/>
-        </div>
-        <div class="relative">
-          <label class="font-label-md text-[10px] text-on-surface-variant/70 uppercase mb-2 block" for="resa-date">Date souhaitée</label>
-          <div class="flex items-center border-b border-outline-variant">
-            <input class="w-full bg-transparent border-0 focus:ring-0 text-on-surface py-2 outline-none font-body-md" id="resa-date" type="date" required/>
-            <span class="material-symbols-outlined text-surface-variant text-xl">calendar_today</span>
-          </div>
-        </div>
-        <div class="relative">
-          <label class="font-label-md text-[10px] text-on-surface-variant/70 uppercase mb-2 block" for="resa-time">Heure</label>
-          <div class="flex items-center border-b border-outline-variant">
-            <select class="w-full bg-transparent border-0 focus:ring-0 text-on-surface py-2 outline-none appearance-none font-body-md" id="resa-time" required>
-              <option class="bg-surface text-on-surface" value="" selected disabled>Choisir un créneau</option>
-              <optgroup label="Midi" class="bg-surface text-on-surface">
-                <option class="bg-surface text-on-surface" value="12:00">12:00</option>
-                <option class="bg-surface text-on-surface" value="12:15">12:15</option>
-                <option class="bg-surface text-on-surface" value="12:30">12:30</option>
-                <option class="bg-surface text-on-surface" value="12:45">12:45</option>
-                <option class="bg-surface text-on-surface" value="13:00">13:00</option>
-                <option class="bg-surface text-on-surface" value="13:30">13:30</option>
-              </optgroup>
-              <optgroup label="Soir" class="bg-surface text-on-surface">
-                <option class="bg-surface text-on-surface" value="19:00">19:00</option>
-                <option class="bg-surface text-on-surface" value="19:15">19:15</option>
-                <option class="bg-surface text-on-surface" value="19:30">19:30</option>
-                <option class="bg-surface text-on-surface" value="19:45">19:45</option>
-                <option class="bg-surface text-on-surface" value="20:00">20:00</option>
-                <option class="bg-surface text-on-surface" value="20:30">20:30</option>
-                <option class="bg-surface text-on-surface" value="21:00">21:00</option>
-              </optgroup>
-            </select>
-            <span class="material-symbols-outlined text-surface-variant text-xl pointer-events-none">schedule</span>
-          </div>
-        </div>
-        <div class="relative">
-          <label class="font-label-md text-[10px] text-on-surface-variant/70 uppercase mb-2 block" for="guests">Nombre de couverts</label>
-          <div class="flex items-center border-b border-outline-variant">
-            <select class="w-full bg-transparent border-0 focus:ring-0 text-on-surface py-2 outline-none appearance-none font-body-md" id="guests">
-              <option class="bg-surface text-on-surface" value="1">1 personne</option>
-              <option class="bg-surface text-on-surface" selected value="2">2 personnes</option>
-              <option class="bg-surface text-on-surface" value="3">3 personnes</option>
-              <option class="bg-surface text-on-surface" value="4">4 personnes</option>
-              <option class="bg-surface text-on-surface" value="5">5 personnes</option>
-              <option class="bg-surface text-on-surface" value="6">6 personnes</option>
-              <option class="bg-surface text-on-surface" value="7">7 personnes</option>
-            </select>
-            <span class="material-symbols-outlined text-surface-variant text-xl pointer-events-none">expand_more</span>
-          </div>
-        </div>
-        <div class="col-span-1 md:col-span-2 pt-6">
-          <button type="submit" class="w-full bg-primary text-on-primary py-5 font-label-md text-label-md tracking-[0.3em] hover:brightness-110 transition-all uppercase shadow-lg shadow-primary/10">
-            Confirmer la réservation
-          </button>
-          <div id="resaFeedback" class="hidden mt-4 p-3 text-sm font-body-md text-center" style="border:1px solid rgba(76,175,80,0.4); background:rgba(76,175,80,0.08); color:#81c784;"></div>
-        </div>
-      </form>
+      <div class="border border-outline-variant/20 p-10 md:p-14 bg-surface-container-lowest/50 backdrop-blur-sm inner-highlight flex flex-col items-center">
+        <button type="button" onclick="MiamOSBooking.open()" class="inline-flex items-center gap-3 bg-primary text-on-primary py-5 px-12 font-label-md text-label-md tracking-[0.3em] hover:brightness-110 transition-all uppercase shadow-lg shadow-primary/10">
+          <span class="material-symbols-outlined">calendar_today</span> Réserver ma table
+        </button>
+        <p class="mt-6 font-body-md text-on-surface-variant/50 text-sm max-w-md mx-auto">Créneaux selon nos disponibilités réelles, vérification par e-mail, confirmation par le restaurant.</p>
+      </div>
       <p class="mt-8 font-label-md text-label-md text-on-surface-variant/40">Pour les groupes de 8 personnes ou plus, contactez notre concierge directement.</p>
     </div>
   </section>
@@ -460,7 +397,7 @@ function toggleMobileNav() {
 <!-- ── FAB ─────────────────────────────────────────────────── -->
 <button
   class="fixed bottom-10 right-10 bg-primary text-on-primary w-16 h-16 rounded-full flex items-center justify-center shadow-2xl copper-glow hover:scale-110 transition-transform z-50"
-  onclick="document.getElementById('reservation').scrollIntoView({behavior:'smooth'})"
+  onclick="MiamOSBooking.open()"
   aria-label="Réserver une table"
 >
   <span class="material-symbols-outlined text-3xl" style="font-variation-settings:'FILL' 1;">calendar_today</span>
@@ -605,76 +542,7 @@ function toggleMobileNav() {
 })();
 </script>
 
-<!-- ── Réservation en ligne → MiamOS (Supabase) ───────────────── -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-(function(){
-  const SB = supabase.createClient(
-    'https://zoeyrcfyyhrcausvywxr.supabase.co',
-    'sb_publishable_uysZiFJa_RMwfs8C4Deq4w_GXLZhzI4'
-  );
-  const RESTAURANT_ID = 12; // Oli's Passion
-  const form = document.getElementById('resaForm');
-  const fb   = document.getElementById('resaFeedback');
-  if(!form) return;
-
-  // Date minimum = aujourd'hui
-  const dateEl = document.getElementById('resa-date');
-  if(dateEl){ dateEl.min = new Date().toISOString().split('T')[0]; }
-
-  function show(msg, ok){
-    fb.textContent = msg;
-    fb.classList.remove('hidden');
-    fb.style.border = '1px solid ' + (ok ? 'rgba(76,175,80,0.4)' : 'rgba(229,115,115,0.5)');
-    fb.style.background = ok ? 'rgba(76,175,80,0.08)' : 'rgba(229,115,115,0.10)';
-    fb.style.color = ok ? '#81c784' : '#e57373';
-  }
-
-  let sending = false;
-  form.addEventListener('submit', async function(e){
-    e.preventDefault();
-    // Honeypot anti-bot : si ce champ caché est rempli, c'est un robot -> on ignore silencieusement
-    const hp = document.getElementById('website');
-    if(hp && hp.value.trim() !== ''){
-      form.reset();
-      show('Merci ! Votre demande de réservation a bien été envoyée. Le restaurant vous confirmera très vite.', true);
-      return;
-    }
-    if(sending) return;
-    const name  = (document.getElementById('name').value  || '').trim();
-    const phone = (document.getElementById('phone').value || '').trim();
-    const email = (document.getElementById('email').value || '').trim();
-    const date  = document.getElementById('resa-date').value;
-    const time  = document.getElementById('resa-time').value;
-    const party = parseInt(document.getElementById('guests').value, 10) || 2;
-
-    if(!name || !phone || !date || !time){
-      show('Merci de renseigner nom, téléphone, date et heure.', false);
-      return;
-    }
-
-    const btn = form.querySelector('button[type="submit"]');
-    const label = btn.textContent;
-    sending = true; btn.disabled = true; btn.textContent = 'Envoi en cours…';
-
-    const { error } = await SB.rpc('create_site_reservation', {
-      p_restaurant_id: RESTAURANT_ID,
-      p_name: name, p_phone: phone, p_email: email,
-      p_date: date, p_time: time, p_party: party, p_note: null
-    });
-
-    sending = false; btn.disabled = false; btn.textContent = label;
-
-    if(error){
-      console.error('create_site_reservation:', error);
-      show('La réservation n\'a pas pu être envoyée. Réessayez ou appelez-nous.', false);
-      return;
-    }
-    form.reset();
-    if(dateEl){ dateEl.min = new Date().toISOString().split('T')[0]; }
-    show('Merci ! Votre demande de réservation a bien été envoyée. Le restaurant vous confirmera très vite.', true);
-  });
-})();
-</script>
+<!-- ── Réservation en ligne → widget MiamOS (dispos réelles + e-mail vérifié) ── -->
+<script src="https://miamos.re/widget/booking.js" data-resto="12" data-name="Oli's Passion" data-accent="#E8590C" data-fab="off" defer></script>
 </body>
 </html>
