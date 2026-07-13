@@ -651,12 +651,13 @@ function toggleMobileNav() {
     try{
       stopRing();
       ringCtx=new (window.AudioContext||window.webkitAudioContext)();
-      ringOnce();
-      ringTimer=setInterval(ringOnce,5000);
+      ringOnce();                              // UNE seule sonnerie
+      // filet : une 2e sonnerie seulement si la connexion traine (evite un silence de mort)
+      ringTimer=setTimeout(()=>{ if(st==="connecting") ringOnce(); },6000);
     }catch(e){/* audio indisponible : on ignore */}
   }
   function stopRing(){
-    if(ringTimer){clearInterval(ringTimer);ringTimer=null;}
+    if(ringTimer){clearTimeout(ringTimer);clearInterval(ringTimer);ringTimer=null;}
     try{ if(ringOsc) ringOsc.stop(); }catch(e){}
     try{ if(ringCtx) ringCtx.close(); }catch(e){}
     ringCtx=null; ringOsc=null;
