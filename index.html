@@ -609,7 +609,7 @@ function toggleMobileNav() {
     if(s==="active"){lbl.textContent="Raccrocher";showTip("En ligne — Amia vous écoute");}}
   /* --- Ambiance musicale avec DUCKING : elle s'efface quand Amia parle, revient dans les blancs --- */
   const AMB_URL="ambiance-amia-full.mp3";
-  const AMB_IDLE=0.16;   // volume dans les silences
+  const AMB_IDLE=0.24;   // volume dans les silences
   const AMB_DUCK=0.0;    // volume quand Amia parle (0 = musique coupée)
   let amb=null, ambFade=null;
   function ambInit(){ if(amb) return; amb=new Audio(AMB_URL); amb.loop=true; amb.volume=0; amb.preload="auto"; }
@@ -624,7 +624,13 @@ function toggleMobileNav() {
       if(i>=steps){clearInterval(ambFade);ambFade=null;}
     },40);
   }
-  function ambStart(){ ambInit(); amb.play().catch(()=>{}); ambTo(AMB_IDLE,900); }
+  // Déverrouille l'audio pendant le clic (obligatoire : les navigateurs bloquent le son hors geste utilisateur)
+  function ambUnlock(){
+    ambInit(); amb.volume=0;
+    const p=amb.play();
+    if(p&&p.catch) p.catch((e)=>console.warn("[Amia] audio bloqué par le navigateur:",e));
+  }
+  function ambStart(){ ambInit(); const p=amb.play(); if(p&&p.catch) p.catch(()=>{}); ambTo(AMB_IDLE,900); }
   function ambStop(){ ambTo(0,500); setTimeout(()=>{ if(amb){amb.pause(); amb.currentTime=0;} },600); }
 
   /* --- Sonnerie : tonalité de retour d'appel française (440 Hz, 1,5s ON / 3,5s OFF) --- */
@@ -658,7 +664,7 @@ function toggleMobileNav() {
 
   async function toggleCall(){
     if(st==="idle"){
-      set("connecting"); startRing();
+      set("connecting"); startRing(); ambUnlock();
       try{await vapi.start(ASSISTANT_ID);}
       catch(e){stopRing();set("idle");showTip("Micro indisponible. Réessayez.");setTimeout(()=>showTip(""),3000);console.error(e);}
     }
