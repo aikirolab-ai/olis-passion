@@ -609,8 +609,8 @@ function toggleMobileNav() {
     if(s==="active"){lbl.textContent="Raccrocher";showTip("En ligne — Amia vous écoute");}}
   /* --- Ambiance musicale CONTINUE et tres discrete (7%) : effet 'fond sonore de salle' --- */
   const AMB_URL="ambiance-amia-full.mp3";
-  const AMB_IDLE=0.07;   // volume CONSTANT, tres en retrait (ambiance de salle)
-  const AMB_DUCK=0.07;   // identique : plus de ducking, la musique reste constante
+  const AMB_IDLE=0.04;   // volume CONSTANT, tres en retrait (ambiance de salle)
+  const AMB_DUCK=0.04;   // identique : plus de ducking, la musique reste constante
   let amb=null, ambFade=null;
   function ambInit(){ if(amb) return; amb=new Audio(AMB_URL); amb.loop=true; amb.volume=0; amb.preload="auto"; }
   function ambTo(target,ms){
