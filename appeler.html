@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>Oli's Passion — Appeler Sophie</title>
+<title>Oli's Passion — Appeler Amia</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,400;1,600&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -71,14 +71,14 @@
 <body>
   <div class="label">Réservez par la voix</div>
   <h1>Oli's Passion</h1>
-  <p class="tag">Appelez Sophie, notre réceptionniste. Elle prend votre réservation et répond à vos questions, à toute heure.</p>
+  <p class="tag">Appelez Amia, notre réceptionniste. Elle prend votre réservation et répond à vos questions, à toute heure.</p>
 
   <div class="stage" id="stage">
     <span class="ring1"></span>
     <button id="call" class="callbtn">
       <span class="ico" id="ico">📞</span>
       <span class="wave"><i></i><i></i><i></i><i></i><i></i></span>
-      <span class="txt" id="btntxt">Parler à Sophie</span>
+      <span class="txt" id="btntxt">Parler à Amia</span>
     </button>
   </div>
 
@@ -104,9 +104,9 @@
     stage.classList.toggle("active",s==="active");
     btn.classList.toggle("active",s==="active");
     btn.classList.toggle("connecting",s==="connecting");
-    if(s==="idle"){ico.textContent="📞";btntxt.textContent="Parler à Sophie";statusEl.textContent="Prêt à appeler";dot.className="dot";document.documentElement.style.setProperty("--amp",".2");}
-    if(s==="connecting"){ico.textContent="…";btntxt.textContent="Connexion";statusEl.textContent="Connexion à Sophie…";dot.className="dot";}
-    if(s==="active"){btntxt.textContent="Raccrocher";statusEl.textContent="En ligne — Sophie vous écoute";dot.className="dot live";}
+    if(s==="idle"){ico.textContent="📞";btntxt.textContent="Parler à Amia";statusEl.textContent="Prêt à appeler";dot.className="dot";document.documentElement.style.setProperty("--amp",".2");}
+    if(s==="connecting"){ico.textContent="…";btntxt.textContent="Connexion";statusEl.textContent="Connexion à Amia…";dot.className="dot";}
+    if(s==="active"){btntxt.textContent="Raccrocher";statusEl.textContent="En ligne — Amia vous écoute";dot.className="dot live";}
   }
 
   btn.addEventListener("click",async()=>{
@@ -120,8 +120,8 @@
 
   vapi.on("call-start",()=>setState("active"));
   vapi.on("call-end",()=>setState("idle"));
-  vapi.on("speech-start",()=>{if(state==="active"){statusEl.textContent="Sophie parle…";dot.className="dot speaking";}});
-  vapi.on("speech-end",()=>{if(state==="active"){statusEl.textContent="Sophie vous écoute";dot.className="dot live";}});
+  vapi.on("speech-start",()=>{if(state==="active"){statusEl.textContent="Amia parle…";dot.className="dot speaking";}});
+  vapi.on("speech-end",()=>{if(state==="active"){statusEl.textContent="Amia vous écoute";dot.className="dot live";}});
   vapi.on("volume-level",(v)=>{document.documentElement.style.setProperty("--amp",Math.min(1.6,0.2+v*2.4).toFixed(2));});
   vapi.on("error",(e)=>{console.error(e);err.textContent="Souci de connexion. Réessayez.";setState("idle");});
   vapi.on("message",(m)=>{
