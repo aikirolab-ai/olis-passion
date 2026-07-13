@@ -607,6 +607,26 @@ function toggleMobileNav() {
     if(s==="idle"){lbl.textContent="Parler à Amia";showTip("");}
     if(s==="connecting"){lbl.textContent="Connexion…";showTip("Connexion à Amia…");}
     if(s==="active"){lbl.textContent="Raccrocher";showTip("En ligne — Amia vous écoute");}}
+  /* --- Ambiance musicale avec DUCKING : elle s'efface quand Amia parle, revient dans les blancs --- */
+  const AMB_URL="ambiance-amia-full.mp3";
+  const AMB_IDLE=0.16;   // volume dans les silences
+  const AMB_DUCK=0.0;    // volume quand Amia parle (0 = musique coupée)
+  let amb=null, ambFade=null;
+  function ambInit(){ if(amb) return; amb=new Audio(AMB_URL); amb.loop=true; amb.volume=0; amb.preload="auto"; }
+  function ambTo(target,ms){
+    if(!amb) return;
+    if(ambFade){clearInterval(ambFade);ambFade=null;}
+    const start=amb.volume, steps=Math.max(1,Math.round(ms/40));
+    let i=0;
+    ambFade=setInterval(()=>{
+      i++;
+      amb.volume=Math.min(1,Math.max(0,start+(target-start)*(i/steps)));
+      if(i>=steps){clearInterval(ambFade);ambFade=null;}
+    },40);
+  }
+  function ambStart(){ ambInit(); amb.play().catch(()=>{}); ambTo(AMB_IDLE,900); }
+  function ambStop(){ ambTo(0,500); setTimeout(()=>{ if(amb){amb.pause(); amb.currentTime=0;} },600); }
+
   /* --- Sonnerie : tonalité de retour d'appel française (440 Hz, 1,5s ON / 3,5s OFF) --- */
   let ringCtx=null, ringTimer=null, ringOsc=null;
   function ringOnce(){
@@ -645,11 +665,11 @@ function toggleMobileNav() {
     else{vapi.stop();}}
   fab.addEventListener("click",toggleCall);
   if(nav) nav.addEventListener("click",toggleCall);
-  vapi.on("call-start",()=>{stopRing();set("active");});
-  vapi.on("call-end",()=>{stopRing();set("idle");});
-  vapi.on("speech-start",()=>{if(st==="active")showTip("Amia parle…");});
-  vapi.on("speech-end",()=>{if(st==="active")showTip("Amia vous écoute");});
-  vapi.on("error",(e)=>{console.error(e);stopRing();set("idle");});
+  vapi.on("call-start",()=>{stopRing();ambStart();set("active");});
+  vapi.on("call-end",()=>{stopRing();ambStop();set("idle");});
+  vapi.on("speech-start",()=>{ambTo(AMB_DUCK,220);if(st==="active")showTip("Amia parle…");});
+  vapi.on("speech-end",()=>{ambTo(AMB_IDLE,700);if(st==="active")showTip("Amia vous écoute");});
+  vapi.on("error",(e)=>{console.error(e);stopRing();ambStop();set("idle");});
 </script>
 </body>
 </html>
