@@ -607,10 +607,10 @@ function toggleMobileNav() {
     if(s==="idle"){lbl.textContent="Parler à Amia";showTip("");}
     if(s==="connecting"){lbl.textContent="Connexion…";showTip("Connexion à Amia…");}
     if(s==="active"){lbl.textContent="Raccrocher";showTip("En ligne — Amia vous écoute");}}
-  /* --- Ambiance musicale avec DUCKING : elle s'efface quand Amia parle, revient dans les blancs --- */
+  /* --- Ambiance musicale CONTINUE et tres discrete (7%) : effet 'fond sonore de salle' --- */
   const AMB_URL="ambiance-amia-full.mp3";
-  const AMB_IDLE=0.24;   // volume dans les silences
-  const AMB_DUCK=0.0;    // volume quand Amia parle (0 = musique coupée)
+  const AMB_IDLE=0.07;   // volume CONSTANT, tres en retrait (ambiance de salle)
+  const AMB_DUCK=0.07;   // identique : plus de ducking, la musique reste constante
   let amb=null, ambFade=null;
   function ambInit(){ if(amb) return; amb=new Audio(AMB_URL); amb.loop=true; amb.volume=0; amb.preload="auto"; }
   function ambTo(target,ms){
@@ -673,8 +673,8 @@ function toggleMobileNav() {
   if(nav) nav.addEventListener("click",toggleCall);
   vapi.on("call-start",()=>{stopRing();ambStart();set("active");});
   vapi.on("call-end",()=>{stopRing();ambStop();set("idle");});
-  vapi.on("speech-start",()=>{ambTo(AMB_DUCK,220);if(st==="active")showTip("Amia parle…");});
-  vapi.on("speech-end",()=>{ambTo(AMB_IDLE,700);if(st==="active")showTip("Amia vous écoute");});
+  vapi.on("speech-start",()=>{if(st==="active")showTip("Amia parle…");});
+  vapi.on("speech-end",()=>{if(st==="active")showTip("Amia vous écoute");});
   vapi.on("error",(e)=>{console.error(e);stopRing();ambStop();set("idle");});
 </script>
 </body>
