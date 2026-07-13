@@ -607,16 +607,49 @@ function toggleMobileNav() {
     if(s==="idle"){lbl.textContent="Parler à Amia";showTip("");}
     if(s==="connecting"){lbl.textContent="Connexion…";showTip("Connexion à Amia…");}
     if(s==="active"){lbl.textContent="Raccrocher";showTip("En ligne — Amia vous écoute");}}
+  /* --- Sonnerie : tonalité de retour d'appel française (440 Hz, 1,5s ON / 3,5s OFF) --- */
+  let ringCtx=null, ringTimer=null, ringOsc=null;
+  function ringOnce(){
+    if(!ringCtx) return;
+    const t=ringCtx.currentTime, o=ringCtx.createOscillator(), g=ringCtx.createGain();
+    o.type="sine"; o.frequency.value=440;
+    g.gain.setValueAtTime(0,t);
+    g.gain.linearRampToValueAtTime(0.08,t+0.04);
+    g.gain.setValueAtTime(0.08,t+1.42);
+    g.gain.linearRampToValueAtTime(0,t+1.5);
+    o.connect(g); g.connect(ringCtx.destination);
+    o.start(t); o.stop(t+1.55);
+    ringOsc=o;
+  }
+  function startRing(){
+    try{
+      stopRing();
+      ringCtx=new (window.AudioContext||window.webkitAudioContext)();
+      ringOnce();
+      ringTimer=setInterval(ringOnce,5000);
+    }catch(e){/* audio indisponible : on ignore */}
+  }
+  function stopRing(){
+    if(ringTimer){clearInterval(ringTimer);ringTimer=null;}
+    try{ if(ringOsc) ringOsc.stop(); }catch(e){}
+    try{ if(ringCtx) ringCtx.close(); }catch(e){}
+    ringCtx=null; ringOsc=null;
+  }
+
   async function toggleCall(){
-    if(st==="idle"){set("connecting");try{await vapi.start(ASSISTANT_ID);}catch(e){set("idle");showTip("Micro indisponible. Réessayez.");setTimeout(()=>showTip(""),3000);console.error(e);}}
+    if(st==="idle"){
+      set("connecting"); startRing();
+      try{await vapi.start(ASSISTANT_ID);}
+      catch(e){stopRing();set("idle");showTip("Micro indisponible. Réessayez.");setTimeout(()=>showTip(""),3000);console.error(e);}
+    }
     else{vapi.stop();}}
   fab.addEventListener("click",toggleCall);
   if(nav) nav.addEventListener("click",toggleCall);
-  vapi.on("call-start",()=>set("active"));
-  vapi.on("call-end",()=>set("idle"));
+  vapi.on("call-start",()=>{stopRing();set("active");});
+  vapi.on("call-end",()=>{stopRing();set("idle");});
   vapi.on("speech-start",()=>{if(st==="active")showTip("Amia parle…");});
   vapi.on("speech-end",()=>{if(st==="active")showTip("Amia vous écoute");});
-  vapi.on("error",(e)=>{console.error(e);set("idle");});
+  vapi.on("error",(e)=>{console.error(e);stopRing();set("idle");});
 </script>
 </body>
 </html>
