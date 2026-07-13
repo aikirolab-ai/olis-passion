@@ -140,6 +140,11 @@
     <a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors duration-300" href="dashboard/index.html">Manager</a>
   </nav>
   <div class="flex items-center gap-4">
+    <!-- Bouton d'appel vocal Amia (animé) -->
+    <button id="sph-nav" class="sph-navbtn" aria-label="Appeler Amia, notre réceptionniste vocale" title="Parler à Amia">
+      <span class="sph-ring"></span><span class="sph-ring r2"></span>
+      <span class="material-symbols-outlined sph-navic">call</span>
+    </button>
     <button
       class="bg-primary-container text-on-primary-container px-6 py-2 font-label-md text-label-md uppercase tracking-widest hover:opacity-80 transition-all duration-300 hidden md:block"
       onclick="MiamOSBooking.open()"
@@ -565,6 +570,25 @@ function toggleMobileNav() {
   #sph-fab.sph-live .sph-dot{display:inline-block}
   @keyframes sph-beat{0%,100%{opacity:1}50%{opacity:.3}}
   #sph-tip{min-height:16px;font-family:'Hanken Grotesk',system-ui,sans-serif;font-size:12.5px;color:rgba(200,185,165,.75)}
+
+  /* --- Bouton d'appel animé dans la barre du haut --- */
+  .sph-navbtn{position:relative;flex:none;width:42px;height:42px;border-radius:50%;border:none;cursor:pointer;
+    background:linear-gradient(135deg,#B87333,#C5A059);color:#3a2400;
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 4px 16px rgba(197,160,89,.35);transition:transform .2s ease,box-shadow .25s ease,background .3s ease}
+  .sph-navbtn:hover{transform:translateY(-1px) scale(1.06);box-shadow:0 6px 22px rgba(197,160,89,.5)}
+  .sph-navbtn:active{transform:scale(.94)}
+  .sph-navic{font-size:21px;line-height:1;animation:sph-wiggle 3s ease-in-out infinite}
+  /* anneaux "ça sonne" */
+  .sph-ring{position:absolute;inset:0;border-radius:50%;border:2px solid #C5A059;opacity:0;animation:sph-ripple 2.4s ease-out infinite;pointer-events:none}
+  .sph-ring.r2{animation-delay:1.2s}
+  @keyframes sph-ripple{0%{transform:scale(1);opacity:.55}100%{transform:scale(1.85);opacity:0}}
+  @keyframes sph-wiggle{0%,88%,100%{transform:rotate(0)}90%{transform:rotate(-14deg)}92%{transform:rotate(12deg)}94%{transform:rotate(-9deg)}96%{transform:rotate(7deg)}98%{transform:rotate(-3deg)}}
+  /* état en appel */
+  .sph-navbtn.sph-live{background:linear-gradient(135deg,#b23b2c,#e05646);color:#fff;box-shadow:0 4px 18px rgba(224,86,70,.45)}
+  .sph-navbtn.sph-live .sph-ring{border-color:#e05646}
+  .sph-navbtn.sph-live .sph-navic{animation:none}
+  @media(prefers-reduced-motion:reduce){.sph-ring,.sph-navic{animation:none}}
 </style>
 <script type="module">
   import Vapi from "https://esm.sh/@vapi-ai/web@2.3.8";
@@ -572,15 +596,22 @@ function toggleMobileNav() {
   const ASSISTANT_ID="045a099c-090d-4144-b85c-cf64797190b5";
   const vapi=new Vapi(PUBLIC_KEY);
   const fab=document.getElementById("sph-fab"),lbl=document.getElementById("sph-lbl"),tip=document.getElementById("sph-tip");
+  const nav=document.getElementById("sph-nav"),navic=nav?nav.querySelector(".sph-navic"):null;
   let st="idle";
   function showTip(t){tip.textContent=t||"";}
-  function set(s){st=s;fab.classList.toggle("sph-live",s==="active");
+  function set(s){st=s;
+    fab.classList.toggle("sph-live",s==="active");
+    if(nav){nav.classList.toggle("sph-live",s==="active");
+      if(navic) navic.textContent = (s==="active") ? "call_end" : "call";
+      nav.title = (s==="active") ? "Raccrocher" : "Parler à Amia";}
     if(s==="idle"){lbl.textContent="Parler à Amia";showTip("");}
     if(s==="connecting"){lbl.textContent="Connexion…";showTip("Connexion à Amia…");}
     if(s==="active"){lbl.textContent="Raccrocher";showTip("En ligne — Amia vous écoute");}}
-  fab.addEventListener("click",async()=>{
+  async function toggleCall(){
     if(st==="idle"){set("connecting");try{await vapi.start(ASSISTANT_ID);}catch(e){set("idle");showTip("Micro indisponible. Réessayez.");setTimeout(()=>showTip(""),3000);console.error(e);}}
-    else{vapi.stop();}});
+    else{vapi.stop();}}
+  fab.addEventListener("click",toggleCall);
+  if(nav) nav.addEventListener("click",toggleCall);
   vapi.on("call-start",()=>set("active"));
   vapi.on("call-end",()=>set("idle"));
   vapi.on("speech-start",()=>{if(st==="active")showTip("Amia parle…");});
